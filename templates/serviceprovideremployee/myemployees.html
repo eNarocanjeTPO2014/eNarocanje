@@ -1,0 +1,108 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+{% load provider %}
+
+{% block main_nav_myemployees %}active{% endblock %}
+
+
+
+{% block content %}
+<h1>{% trans 'My Employees' %}</h1>
+
+<ul class="nav nav-pills pull-right visible-desktop">
+	{% for sort in sort_choices %}
+		<li {% if sort.2 %}class="active"{% endif %}><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+	{% endfor %}
+    </ul>
+<ul class="nav nav-tabs">
+
+	<li class="active">
+		<a href="{% url 'myemployees' %}">{% trans 'Employees' %}</a>
+	</li>
+</ul>
+
+	<div class="row twoone-main">
+		<div class="span2">
+			<ul class="nav nav-list">
+				<form action="">
+					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
+					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
+				</form>
+
+				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
+				{% for sort in sort_choices %}
+					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+				{% endfor %}
+			</ul>
+			<br/>
+		</div>
+		<div class="span10"> <!-- TO SPREMENI kot v myservices!!! -->
+			{% if employees %}
+				<!-- TBA -->
+                <div id="no-more-tables">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {% trans 'First Name' %}
+                                </th>
+                                <th>
+                                    {% trans 'Last name' %}
+                                </th>
+                                <th>
+                                    {% trans 'Description' %}
+                                </th>
+                                <th>
+                                    {% trans 'Active From' %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in employees %}
+                                <tr>
+                                    <td data-title="{% trans 'First Name' %}">
+                                        {{ employee.first_name }}
+                                    </td>
+                                    <td data-title="{% trans 'Last Name' %}">
+                                        {{ employee.last_name }}
+                                    </td>
+                                    <td data-title="{% trans 'Description' %}">
+                                        {{ employee.description }}
+                                    </td>
+                                    <td data-title="{% trans 'Active From' %}">
+                                        {{ employee.active_from }}
+                                    </td>
+                                    <td data-title="{% trans 'Actions' %}">
+                                        <a class="btn" href="{% url 'editemployee' employee.id %}">{% trans "Edit" %}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+				{% with employees as paginator %}
+					{% include "browse/pagination.html" %}
+				{% endwith %}
+			{% else %}
+				{% trans "No employees found." %}
+			{% endif %}
+		</div>
+
+	</div>
+    <div class="form-actions">
+                    <a class="btn btn-primary" href="{% url 'addemployee' %}">{% trans "Add employee" %}</a>
+         </div>
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+    (function() {
+        $('#id_category, #id_provider, #id_discount, #id_orderby, #id_ascdesc').change(function() {
+                $('#search-form').submit();
+            });
+    });
+{% endblock %}

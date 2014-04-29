@@ -1,0 +1,33 @@
+{% extends 'main.html' %}
+
+{% block main_nav_mynotifications %}active{% endblock %}
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+
+
+{% block content %}
+    <h1>Obvestila</h1>
+
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="{% url 'mynotifications' %}">Obvestila o ponudbi</a>
+        </li>
+        <li>
+            <a href="{% url 'sendservicenotification' %}">Obvestila o storitvi</a>
+        </li>
+    </ul>
+<form method="POST" action="">
+    <div id="no-more-tables">
+        {% csrf_token %}
+        {{emailForm|as_bootstrap }}
+
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit" name="action">Pošlji</button>
+
+        </div>
+    </div>
+</form>
+
+
+{% endblock %}

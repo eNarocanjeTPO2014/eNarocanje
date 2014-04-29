@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+
+{% block main_nav_mynotifications %}active{% endblock %}
+
+{% block content %}
+    <h1>Obvestila</h1>
+
+    <ul class="nav nav-tabs">
+	<li>
+		<a href="{% url 'mynotifications' %}">Obvestila o ponudbi</a>
+	</li>
+	<li class="active">
+		<a href="{% url 'sendservicenotification' %}">Obvestila o storitvi</a>
+	</li>
+</ul>
+
+{% endblock %}

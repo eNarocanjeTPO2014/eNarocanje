@@ -1,0 +1,125 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+{% load provider %}
+
+{% block main_nav_mycustomers %}active{% endblock %}
+
+
+
+{% block content %}
+			<h2>{{ customer.name }} {{ customer.last_name }} - {% trans "All reservations" %}</h2>
+
+<!-- BRISI
+<ul class="nav nav-pills pull-right visible-desktop">
+	{% for sort in sort_choices %}
+		<li {% if sort.2 %}class="active"{% endif %}><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+	{% endfor %}
+    </ul>
+<ul class="nav nav-tabs">
+
+	<li class="active">
+		<a href="{% url 'mycustomers' %}">{% trans 'Customers' %}</a>
+	</li>
+</ul>
+ -->
+	<div class="row-fluid">
+		<div class="span2">
+			<ul class="nav nav-list">
+				<form action="">
+					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
+					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
+				</form>
+				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
+				{% for sort in sort_choices %}
+					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+				{% endfor %}
+			</ul>
+			<br/>
+		</div>
+		<div class="span10">
+			{% if reservations %}
+
+                <div >
+                <p> {% trans "Number of reservations: " %}{{ number_of_reservations }}</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {% trans 'Service name' %}
+                                </th>
+                                <th>
+                                    {% trans 'Date' %}
+                                </th>
+                                <th>
+                                    {% trans 'Time' %}
+                                </th>
+                                <th>
+                                    {% trans 'Price' %}
+                                </th>
+                                <th>
+                                    {% trans 'Has attended' %}
+                                </th>
+                                <th>
+                                    {%  trans 'Rating' %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in reservations %}
+                                <tr>
+                                    <td data-title="{% trans 'Service name' %}">
+                                        {{ reservation.service_name }}
+                                    </td>
+                                    <td data-title="{% trans 'Date' %}">
+                                        {{ reservation.date }}
+                                    </td>
+                                    <td data-title="{% trans 'Time' %}">
+                                        {{ reservation.time }}
+                                    </td>
+                                    <td data-title="{% trans 'Price' %}">
+                                        {% if reservation.service_price %}{{ reservation.service_price }}{% else %}0{% endif %} €
+                                    </td>
+                                    <td data-title="{% trans 'Has attended' %}">
+                                        {% if reservation.attended %} {% trans "Yes" %} {% else %} {% trans "No" %} {% endif %}
+                                    </td>
+                                    <td data-title="{% trans 'Rating' %}">
+
+                                    {% if reservation.rating %}
+                                        {{ reservation.rating }}/5
+                                           <!--      <div display="block" float="left">
+                                           {%  for i in "xxxxx" %}
+                                               {%  if forloop.counter < reservation.rating %}
+                                                   <img src="/static/img/no-star.png" alt="star" />
+                                               {%  else %}
+                                                   <img src="/static/img/yes-star.png" alt="star" />
+                                               {%  endif %}
+                                           {%  endfor %}
+                                            </div> -->
+                                        {% else %}{% trans "No rating given." %} {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+				{% with reservations as paginator %}
+					{% include "browse/pagination.html" %}
+				{% endwith %}
+			{% else %}
+				{% trans "Customer hasn't made any reservations yet." %}
+			{% endif %}
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+   
+{% endblock %}

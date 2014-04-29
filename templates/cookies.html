@@ -1,0 +1,118 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+
+{% block content %}
+<h2>{% trans 'About Cookies' %}</h2>
+    <br />
+
+	<div class="row twoone-main">
+
+      <div class="span2">
+
+		<div class="span10">
+            <p>{% trans "Cookies are small text files which are placed on your browser and enable us to ensure successful operation of all the functions of this website, "%}
+                {% trans "personalize certain content for you, and analyse site visits in order to be able to continuously improve user experience." %}</p> <br />
+            <h4>{% trans "This website uses following cookies: " %}</h4>
+                <div id="no-more-tables">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {% trans 'Cookie name' %}
+                                </th>
+                                <th>
+                                    {% trans 'Provider ' %}
+                                </th>
+                                <th>
+                                    {% trans 'Expiry' %}
+                                </th>
+                                <th>
+                                    {% trans 'Purpose' %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-title="{% trans 'Cookie name' %}">
+                                    cookiesDirective
+                                </td>
+                                <td data-title="{% trans 'Provider' %}">
+                                    localhost
+                                </td>
+                                <td data-title="{% trans 'Expiry' %}">
+                                   365 {% trans "days" %}
+                                </td>
+                                <td data-title="{% trans 'Purpose' %}">
+                                    {%  trans "This cookie stores user's answer of agreeing with our cookie policy" %}
+                                </td>
+                             </tr>
+                             <tr>
+                                <td data-title="{% trans 'Cookie name' %}">
+                                    Google login
+                                </td>
+                                <td data-title="{% trans 'Provider' %}">
+                                    Google
+                                </td>
+                                <td data-title="{% trans 'Expiry' %}">
+                                   {%  trans "End of session" %}
+                                </td>
+                                <td data-title="{% trans 'Purpose' %}">
+                                   {%  trans "This cookie stores data about user's session when logged in through Google login service" %}
+                                </td>
+                             </tr>
+                            <tr>
+                                <td data-title="{% trans 'Cookie name' %}">
+                                   fbsr_
+                                </td>
+                                <td data-title="{% trans 'Provider' %}">
+                                    Facebook
+                                </td>
+                                <td data-title="{% trans 'Expiry' %}">
+                                    2 {%  trans "hours" %}
+                                </td>
+                                <td data-title="{% trans 'Purpose' %}">
+                                   {% trans "This cookie is used to manage authentication with Facebook Connect" %}
+                                </td>
+                             </tr>
+                            <tr>
+                                <td data-title="{% trans 'Cookie name' %}">
+                                   sessionid
+                                </td>
+                                <td data-title="{% trans 'Provider' %}">
+                                    localhost
+                                </td>
+                                <td data-title="{% trans 'Expiry' %}">
+                                   {%  trans "End of session" %}
+                                </td>
+                                <td data-title="{% trans 'Purpose' %}">
+                                    {%  trans "This cookie is used to identify your unique session on the website" %}
+                                </td>
+                             </tr>
+                            <tr>
+                                <td data-title="{% trans 'Cookie name' %}">
+                                   csrftoken
+                                </td>
+                                <td data-title="{% trans 'Provider' %}">
+                                    localhost
+                                </td>
+                                <td data-title="{% trans 'Expiry' %}">
+                                   365 {%  trans "days" %}
+                                </td>
+                                <td data-title="{% trans 'Purpose' %}">
+                                    {%  trans "This cookie is for Cross Site Forgery Protection" %}
+                                </td>
+                             </tr>
+                            <!-- TBA: Google analytics -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+		</div>
+
+	</div>
+{% endblock %}
