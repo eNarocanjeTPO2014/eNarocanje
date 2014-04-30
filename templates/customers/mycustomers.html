@@ -58,6 +58,9 @@
                                     {% trans 'Last reservation date' %}
                                 </th>
                                 <th>
+                                    {% trans 'Reservations' %}
+                                </th>
+                                <th>
                                     {% trans 'Actions' %}
                                 </th>
                             </tr>
@@ -77,8 +80,15 @@
                                     <td data-title="{% trans 'Last reservation date' %}">
                                         {% if customer.last_reservation %}{{ customer.last_reservation.date }}{% else %}{% trans 'No reservation made' %}{% endif %}
                                     </td>
+                                    <td data-title="{% trans 'Reservations' %}">
+                                        {{ customer.number_of_reservations }}
+                                    </td>
                                     <td data-title="{% trans 'Actions' %}">
+
                                         <a class="btn" href="{% url 'editcustomer' customer.id %}">{% trans "Edit" %}</a>
+                                        {% if customer.number_of_reservations > 0 %}
+                                            <a class="btn btn-primary" href="{% url 'customerreservations' customer.id %}">{% trans "History" %}</a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

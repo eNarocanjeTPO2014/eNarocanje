@@ -18,6 +18,7 @@ class Customer(models.Model):
     #field for optimized searching
     full_name = models.CharField(_('full name'), max_length=120, null=True)
     last_reservation = models.DateTimeField(null=True,default=datetime.today())
+    number_of_reservations = models.IntegerField(null=True, default=0)
     # backup field when a service provider creates a customer with no reservations yet and it can be displayed
     service_provider = models.ForeignKey(ServiceProvider, null=True, default=None)
 

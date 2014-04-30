@@ -59,10 +59,13 @@ def mycustomers(request):
         customers = customers.filter(full_name__contains=q)
 
     # find last reservation of every customer
-    last_reservations = Reservation.objects.filter(service_provider=request.user.service_provider, customer__in = customers)
+    last_reservations = Reservation.objects.filter(service_provider=request.user.service_provider, customer__in = customers, is_deny=False)
     for customer in customers:
         last_reservations_customer = last_reservations.filter(customer=customer)
         last_reservation = last_reservations_customer.order_by('-created')[:1].values_list('created',flat=True)
+        number_of_reservations = last_reservations_customer.count()
+        customer.number_of_reservations = number_of_reservations
+        customer.save(update_fields=['number_of_reservations'])
         if len(last_reservation) == 0:
             customer.last_reservation = None
         else:
@@ -138,7 +141,20 @@ def edit(request, id):
 def customer_reservations(request, id):
     customer = get_object_or_404(Customer, id=id)
     # get all comments
-    reservations = customer.reservation_set.filter(is_deny=False).order_by('-created')
+    reservations = customer.reservation_set.filter(is_deny=False, service_provider=request.user.service_provider).order_by('-created')
     number_of_reservations = reservations.count()
 
     return render_to_response('customers/reservations.html', locals(), context_instance=RequestContext(request))
+
+# Change customer's attended status
+@for_service_providers
+def manage(request):
+    if request.method == 'POST':
+        reservation = get_object_or_404(Reservation, id=request.POST.get('reservation'))
+        if request.POST.get('action') == 'no':
+            reservation.attended = True
+            reservation.save()
+        if request.POST.get('action') == 'yes':
+            reservation.attended = False
+            reservation.save()
+    return HttpResponseRedirect(reverse(customer_reservations, kwargs={'id':request.POST.get('customer')}))
