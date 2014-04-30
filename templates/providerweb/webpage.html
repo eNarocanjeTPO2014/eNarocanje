@@ -1,0 +1,30 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+
+
+{% block content %}
+
+
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="/static/js/mapa.js"></script>
+
+    <div id="osnovno" style="float:left"">
+        <div>
+
+        <img src="{{ MEDIA_URL }}{{serviceProvider.logo}}" width="250"/>
+        <p> <b> {{ serviceProvider.name }} </b> </p>
+        <p> {{ serviceProvider.street }}, {{ serviceProvider.zipcode }} {{ serviceProvider.city }} </p>
+        <p> Lokacija: <div id="lat1" style="float:left"> {{ serviceProvider.lat }} </div>  <div style="float:left;"> , ,  </div> <div id="lng1" style="float:left;"> {{ serviceProvider.lng }} </div> </p>
+        </div>
+        </div>
+
+    <div id="slika" style="float:right;">
+        <img src="{{ MEDIA_URL }}{{slika.image}}" alt="Ni slike" width="500"/>
+    </div>
+
+    <div style="width:100%; height:500px;" id="zemljevid"/>
+
+{% endblock %}
