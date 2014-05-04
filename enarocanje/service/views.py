@@ -22,6 +22,7 @@ from enarocanje.accountext.decorators import for_service_providers
 from enarocanje.accountext.forms import ServiceProviderImageForm
 from enarocanje.accountext.models import ServiceProvider, ServiceProviderImage, Category as SPCategory
 from enarocanje.reservations.models import Reservation
+from enarocanje.settings import DEFAULT_FROM_EMAIL
 from forms import ServiceForm, FilterForm, DiscountFormSet, CommentForm, EmailForm
 from models import Service, Category, Discount, Comment, User
 
@@ -380,7 +381,7 @@ def managereservation(request):
                 email_to1 = reservation.user.email
             subject = _('Confirmation of service reservation')
             renderedToCustomer = render_to_string('emails/reservation_customer.html', {'reservation': reservation})
-            send_mail(subject, renderedToCustomer, 'none', [email_to1], fail_silently=False)
+            send_mail(subject, renderedToCustomer, DEFAULT_FROM_EMAIL, [email_to1], fail_silently=False)
         if request.POST.get('action') == 'deny':
             reservation.is_deny = True
             reservation.save()
@@ -390,7 +391,7 @@ def managereservation(request):
                 email_to1 = reservation.user.email
             subject = _('Your reservation was not confirmed')
             renderedToCustomer = render_to_string('emails/reservation_customer.html', {'reservation': reservation})
-            send_mail(subject, renderedToCustomer, 'none', [email_to1], fail_silently=False)
+            send_mail(subject, renderedToCustomer, DEFAULT_FROM_EMAIL, [email_to1], fail_silently=False)
             reservation.delete()
     return HttpResponseRedirect(reverse(myunconfirmedreservations))
 

@@ -11,7 +11,7 @@ class CustomerForm(ModelForm):
     class Meta:
         model = Customer
         # all fields except full_name (backup field) and last_reservation
-        exclude = ('full_name','last_reservation','service_provider' )
+        exclude = ('full_name','last_reservation','service_provider', 'number_of_reservations' )
 
     def __init__(self, *args, **kwargs):
         super(CustomerForm, self).__init__(*args, **kwargs)

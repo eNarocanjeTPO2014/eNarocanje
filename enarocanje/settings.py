@@ -8,7 +8,9 @@ SOCIAL_LOGIN = True
 
 ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
-BASE_URL = 'http://krn.fri.uni-lj.si'
+#BASE_URL = 'http://krn.fri.uni-lj.si'
+#spremeni, ko das na streznik
+BASE_URL = "http://localhost:8000"
 
 ADMINS = ()
 

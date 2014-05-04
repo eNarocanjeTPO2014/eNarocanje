@@ -26,19 +26,7 @@
 </ul>
  -->
 	<div class="row-fluid">
-		<div class="span2">
-			<ul class="nav nav-list">
-				<form action="">
-					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
-					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
-				</form>
-				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
-				{% for sort in sort_choices %}
-					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
-				{% endfor %}
-			</ul>
-			<br/>
-		</div>
+
 		<div class="span10">
 			{% if reservations %}
 
@@ -65,6 +53,9 @@
                                 <th>
                                     {%  trans 'Rating' %}
                                 </th>
+                                <th>
+                                    {% trans 'Change Attended status' %}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,8 +73,12 @@
                                     <td data-title="{% trans 'Price' %}">
                                         {% if reservation.service_price %}{{ reservation.service_price }}{% else %}0{% endif %} €
                                     </td>
-                                    <td data-title="{% trans 'Has attended' %}">
-                                        {% if reservation.attended %} {% trans "Yes" %} {% else %} {% trans "No" %} {% endif %}
+                                    <td data-title="{% trans 'Did customer attend' %}">
+                                        {% if reservation.attended %}
+                                            <span class="label label-success">{% trans "Yes" %}</span>
+                                        {% else %}
+                                            <span class="label label-danger" style="color:#ff362e">{% trans "No" %}</span>
+                                        {% endif %}
                                     </td>
                                     <td data-title="{% trans 'Rating' %}">
 
@@ -99,6 +94,18 @@
                                            {%  endfor %}
                                             </div> -->
                                         {% else %}{% trans "No rating given." %} {% endif %}
+                                    </td>
+                                    <td>
+                                       <form method="POST" action="{% url 'manageattend' %}" style="display: inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="reservation" value="{{ reservation.id }}" />
+                                            <input type="hidden" name="customer" value="{{ customer.id }}" />
+                                            {% if reservation.attended == True %}
+                                                <button class="btn" type="submit" name="action" value="yes">{% trans "Change to No" %}</button>
+                                            {% else %}
+                                                <button class="btn" type="submit" name="action" value="no">{% trans "Change to Yes" %}</button>
+                                            {% endif %}
+                                        </form>
                                     </td>
                                 </tr>
                             {% endfor %}
