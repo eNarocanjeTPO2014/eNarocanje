@@ -12,6 +12,10 @@ from django.template import RequestContext
 
 from forms import SignupForm, ServiceProviderForm
 from models import User, ServiceProvider,ServiceProviderImage
+from enarocanje.workinghours.models import WorkingHours
+
+from django.utils.translation import ugettext as _
+
 
 @login_required
 def account_profile(request):
@@ -80,11 +84,30 @@ signup = SignupView2.as_view()
 
 
 def ServiceProviderWeb(request, serviceProviderWeb):
+    serviceProvider=0
     try:
         serviceProvider= ServiceProvider.objects.get(web=serviceProviderWeb)
-        slika= ServiceProviderImage.objects.get(service_provider_id = serviceProvider.id)
-        return render_to_response('providerweb/webpage.html', locals(), context_instance=RequestContext(request))
     except  ObjectDoesNotExist:
         return render_to_response('404.html', locals(), context_instance=RequestContext(request))
         pass
+
+    slika=""
+    odpiralniCas=0
+    staff=0
+    try:
+        staff= User.objects.get(service_provider_id = serviceProvider.id)
+        delovniCasi= list(WorkingHours.objects.filter(service_provider_id = serviceProvider.id))
+        slika= ServiceProviderImage.objects.get(service_provider_id = serviceProvider.id)
+    except ObjectDoesNotExist:
+        pass
+
+    #Sestavi urnik
+    urnik= [_('Closed'), _('Closed'), _('Closed'), _('Closed'), _('Closed'), _('Closed'), _('Closed')]
+    for casi in delovniCasi:
+        cas= casi.time_from.strftime("%H:%M") + " - " + casi.time_to.strftime("%H:%M")
+        dnevi= [int(s) for s in casi.week_days if s.isdigit()]
+        for i in dnevi:
+            urnik[i-1]= cas
+
+    return render_to_response('providerweb/webpage.html', locals(), context_instance=RequestContext(request))
 
