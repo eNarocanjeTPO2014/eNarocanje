@@ -2,12 +2,12 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 21:33+0200\n"
+"POT-Creation-Date: 2014-05-05 13:13+0200\n"
 "PO-Revision-Date: 2014-01-31 20:34+0100\n"
 "Last-Translator: klemen šavli <klemen@itklinika.si>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -155,6 +155,10 @@ msgstr "telefonska številka"
 #: enarocanje/accountext/models.py:90
 msgid "language"
 msgstr "jezik"
+
+#: enarocanje/accountext/views.py:105 enarocanje/reservations/rcalendar.py:11
+msgid "Closed"
+msgstr "Zaprto"
 
 #: enarocanje/coupon/forms.py:19
 msgid "Coupon valid until"
@@ -363,10 +367,6 @@ msgstr "cena"
 msgid "rating"
 msgstr "ocena"
 
-#: enarocanje/reservations/rcalendar.py:11
-msgid "Closed"
-msgstr "Zaprto"
-
 #: enarocanje/reservations/rcalendar.py:12
 msgid "Closed on this day"
 msgstr "Zaprto na ta dan"
@@ -541,37 +541,37 @@ msgstr "Datum do"
 msgid "Absence can't end before it starts."
 msgstr "Odsotnost se ne more končati preden se začne."
 
-#: enarocanje/workinghours/models.py:7
+#: enarocanje/workinghours/models.py:7 templates/providerweb/webpage.html:35
 #: templates/reservations/reservation.html:159
 msgid "Monday"
 msgstr "ponedeljek"
 
-#: enarocanje/workinghours/models.py:8
+#: enarocanje/workinghours/models.py:8 templates/providerweb/webpage.html:39
 #: templates/reservations/reservation.html:159
 msgid "Tuesday"
 msgstr "torek"
 
-#: enarocanje/workinghours/models.py:9
+#: enarocanje/workinghours/models.py:9 templates/providerweb/webpage.html:43
 #: templates/reservations/reservation.html:159
 msgid "Wednesday"
 msgstr "sreda"
 
-#: enarocanje/workinghours/models.py:10
+#: enarocanje/workinghours/models.py:10 templates/providerweb/webpage.html:47
 #: templates/reservations/reservation.html:159
 msgid "Thursday"
 msgstr "četrtek"
 
-#: enarocanje/workinghours/models.py:11
+#: enarocanje/workinghours/models.py:11 templates/providerweb/webpage.html:51
 #: templates/reservations/reservation.html:159
 msgid "Friday"
 msgstr "petek"
 
-#: enarocanje/workinghours/models.py:12
+#: enarocanje/workinghours/models.py:12 templates/providerweb/webpage.html:55
 #: templates/reservations/reservation.html:159
 msgid "Saturday"
 msgstr "sobota"
 
-#: enarocanje/workinghours/models.py:13
+#: enarocanje/workinghours/models.py:13 templates/providerweb/webpage.html:59
 #: templates/reservations/reservation.html:159
 msgid "Sunday"
 msgstr "nedelja"
@@ -1153,7 +1153,6 @@ msgid "Add customer"
 msgstr "Dodaj stranko"
 
 #: templates/customers/reservations.html:13
-
 msgid "All reservations"
 msgstr "Vse rezervacije"
 
@@ -1286,6 +1285,14 @@ msgid ""
 msgstr ""
 "Imate novo rezervacijo! \n"
 "\tDodatne informacije o rezervaciji:"
+
+#: templates/providerweb/webpage.html:23
+msgid "Contact information"
+msgstr "Kontakt"
+
+#: templates/providerweb/webpage.html:26
+msgid "View services"
+msgstr "Ogled storitev"
 
 #: templates/reservations/alreadyreserved.html:8
 msgid ""
@@ -1821,7 +1828,7 @@ msgstr "Dnevi v tednu"
 #~ msgid "You must type the same password each time."
 #~ msgstr "Vtipkani geslo morata biti enaki."
 
-# 
+#
 #~ msgid "This e-mail address is already associated with this account."
 #~ msgstr "Ta e-poštni naslov je že povezan s tem računom."
 
