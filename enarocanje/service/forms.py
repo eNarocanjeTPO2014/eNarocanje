@@ -83,3 +83,7 @@ class CommentForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.fields['body'].label = ''
+
+class EmailForm(forms.Form):
+    subject = forms.CharField(widget=BootstrapTextInput(attrs={'style':'width:98%'}),label=_('Title'),required=True)
+    message = forms.CharField(widget=Textarea(attrs={'style':'width:98%;max-width:98%'}),label=_('Text'),required=True)
