@@ -13,6 +13,8 @@ urlpatterns = patterns('',
 	url(r'^', include('enarocanje.reservations.urls')),
 	url(r'^', include('enarocanje.coupon.urls')),
     url(r'^', include('enarocanje.customers.urls')),
+    url(r'^', include('enarocanje.ServiceProviderEmployee.urls')),
+    url(r'^', include('enarocanje.mailservice.urls')),
 
 	url(r'^web/(?P<serviceProviderWeb>\w+)/$', 'enarocanje.accountext.views.ServiceProviderWeb', name='provider_web'),
 

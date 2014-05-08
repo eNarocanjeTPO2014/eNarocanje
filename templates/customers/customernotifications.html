@@ -1,0 +1,107 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+{% load provider %}
+
+{% block main_nav_mycustomers %}active{% endblock %}
+
+
+
+{% block content %}
+<h1>{% trans 'My Customers' %}</h1>
+
+<ul class="nav nav-pills pull-right visible-desktop">
+	{% for sort in sort_choices %}
+		<li {% if sort.2 %}class="active"{% endif %}><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+	{% endfor %}
+    </ul>
+<ul class="nav nav-tabs">
+
+	<li>
+		<a href="{% url 'mycustomers' %}">{% trans 'Customers' %}</a>
+
+	</li>
+    <li  class="active">
+		<a href="{% url 'mynotifications' %}">{% trans 'Customer notifications' %}</a>
+	</li>
+</ul>
+
+        <div class="row-fluid">
+		<div class="span2">
+			<ul class="nav nav-list">
+				<form action="">
+					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
+					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
+				</form>
+				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
+				{% for sort in sort_choices %}
+					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+				{% endfor %}
+			</ul>
+			<br/>
+		</div>
+		<div class="span10">
+			{% if all_sent_mails %}
+
+                <div >
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {% trans 'Title' %}
+                                </th>
+                                <th>
+                                    {% trans 'Sent date' %}
+                                </th>
+                                <th>
+                                    {% trans 'Mail type' %}
+                                </th>
+                                <th>
+                                    {% trans 'Number of recipients' %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mail in all_sent_mails %}
+                                <tr>
+                                    <td data-title="{% trans 'Title' %}">
+                                        {{ mail.title }}
+                                    </td>
+                                    <td data-title="{% trans 'Sent date' %}">
+                                        {{ mail.date_time }}
+                                    </td>
+                                    <td data-title="{% trans 'Mail type' %}">
+                                        {{ mail.mail_type }}
+                                    </td>
+                                    <td data-title="{% trans 'Number of recipients' %}">
+                                        {{ mail.number_of_recipients }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+				{% with all_sent_mails as paginator %}
+					{% include "browse/pagination.html" %}
+				{% endwith %}
+			{% else %}
+				{% trans "No sent mails found." %}
+			{% endif %}
+		</div>
+
+	</div>
+
+        <div class="form-actions">
+                <a class="btn btn-primary" href="{% url 'sendmail' %}">{% trans "Send mail" %}</a>
+         </div>
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+   
+{% endblock %}

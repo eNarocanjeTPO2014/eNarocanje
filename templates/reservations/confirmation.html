@@ -13,6 +13,11 @@
 	<b>{% trans "Duration" %}:</b> {{ service.duration_with_unit }}<br/>
 	<b>{% trans "Price" %}:</b> {{ service.price_with_unit }}<br/>
 </p>
+{% if service_provider_employee_obj %}
+    <p>
+        <b>{% trans "Chosen employee" %}:</b> {{ service_provider_employee_obj.first_name }} {{ service_provider_employee_obj.last_name }}
+    </p>
+{% endif %}
 <p>
 	<b>{% trans "Date" %}:</b> {{ data.date }}<br/>
 	<b>{% trans "Time" %}:</b> {{ data.time }}<br/>
@@ -30,7 +35,11 @@
 
 <div class="form-actions">
 	<input type="submit" class="btn btn-primary" value="{% trans "Confirm" %}">
-	<a href="{% url 'service' service.id %}" class="btn">{% trans "Cancel" %}</a>
+{% if service_provider_employee_obj %}
+	<a href="{% url 'service' service.id service_provider_employee_obj.id %}" class="btn">{% trans "Cancel" %}</a>
+{% else %}
+    <a href="{% url 'service2' service.id %}" class="btn">{% trans "Cancel" %}</a>
+{% endif %}
 </div>
 
 {% endblock %}

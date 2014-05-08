@@ -11,6 +11,8 @@
 	{% if selected_provider %}
 		<h1>{{ selected_provider.name }}</h1>
 		{{ selected_provider.full_address }}<br/>
+        <a href="{% url "provider_web" selected_provider.web%}"> {% trans 'Visit provider web page' %} </a>
+        <br/>
 		<br/>
 	{% endif %}
 
@@ -50,7 +52,9 @@
 							<div class="obrobe">
 								<img src="{{ service.service_provider.logo_url }}" {{ service.service_provider|logowh:"100,150" }} class="logotip" />
 								<div class="obrobe-content">
-									<h3 class="obrobe-title"><a href="{% url 'service' service.id %}" style="color: black">{{ service.name }}</a></h3>
+									<h3 class="obrobe-title"><a href="{% url 'service2' service.id%}" style="color: black">{{ service.name }}</a></h3>
+                                    <!-- 30.4.2014 RokA; link na izbor zaposlenih za storitev,  provider= service.service_provider.id }}-->
+                                    <h4 class="obrobe-title"><a href="{% url 'browseemployees' %}?service={{ service.id }}" style="color: black">{% trans "Choose an employee for service" %}</a></h4>
 									<p style="float: right; font-weight: bold">{{ service.duration_with_unit }}</p>
 									{% if service.service_provider.has_location and location %}
 										<p>{{ service.service_provider|distance:location }} {% trans "away" %}</p>

@@ -16,7 +16,7 @@ class SignupForm(forms.Form):
 	last_name = forms.CharField(max_length=30, label=_('Last Name'))
 	phone = forms.CharField(max_length=100, label=_('Phone Number'))
 	language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Language'))
-	service_notifications=forms.BooleanField(label=('Dovolim posiljanje obvestil o novi ponudbi in storitvah'))
+	service_notifications=forms.BooleanField(label=_('Allow sending new offers and notices'),required=False)
 	def save(self, user):
 		user.first_name = self.cleaned_data['first_name']
 		user.last_name = self.cleaned_data['last_name']

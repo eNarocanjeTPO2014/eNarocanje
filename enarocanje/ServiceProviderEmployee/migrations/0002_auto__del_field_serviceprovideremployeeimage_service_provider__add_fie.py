@@ -8,40 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'ServiceProviderEmployee'
-        db.create_table(u'ServiceProviderEmployee_serviceprovideremployee', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('service_provider', self.gf('django.db.models.fields.related.ForeignKey')(related_name='employees', to=orm['accountext.ServiceProvider'])),
-            ('service', self.gf('django.db.models.fields.related.ForeignKey')(related_name='employees', to=orm['service.Service'])),
-            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('active_from', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('active_to', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('picture', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
-            ('picture_width', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('picture_height', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-        ))
-        db.send_create_signal(u'ServiceProviderEmployee', ['ServiceProviderEmployee'])
+        # Deleting field 'ServiceProviderEmployeeImage.service_provider'
+        db.delete_column(u'ServiceProviderEmployee_serviceprovideremployeeimage', 'service_provider_id')
 
-        # Adding model 'ServiceProviderEmployeeImage'
-        db.create_table(u'ServiceProviderEmployee_serviceprovideremployeeimage', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
-            ('image_width', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('image_height', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('delete_image', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('service_provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accountext.ServiceProvider'])),
-        ))
-        db.send_create_signal(u'ServiceProviderEmployee', ['ServiceProviderEmployeeImage'])
+        # Adding field 'ServiceProviderEmployeeImage.service_provider_employee'
+        db.add_column(u'ServiceProviderEmployee_serviceprovideremployeeimage', 'service_provider_employee',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default='0', to=orm['ServiceProviderEmployee.ServiceProviderEmployee']),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'ServiceProviderEmployee'
-        db.delete_table(u'ServiceProviderEmployee_serviceprovideremployee')
+        # Adding field 'ServiceProviderEmployeeImage.service_provider'
+        db.add_column(u'ServiceProviderEmployee_serviceprovideremployeeimage', 'service_provider',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['accountext.ServiceProvider']),
+                      keep_default=False)
 
-        # Deleting model 'ServiceProviderEmployeeImage'
-        db.delete_table(u'ServiceProviderEmployee_serviceprovideremployeeimage')
+        # Deleting field 'ServiceProviderEmployeeImage.service_provider_employee'
+        db.delete_column(u'ServiceProviderEmployee_serviceprovideremployeeimage', 'service_provider_employee_id')
 
 
     models = {
@@ -66,7 +49,7 @@ class Migration(SchemaMigration):
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'image_height': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
             'image_width': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
-            'service_provider': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accountext.ServiceProvider']"})
+            'service_provider_employee': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ServiceProviderEmployee.ServiceProviderEmployee']"})
         },
         u'accountext.category': {
             'Meta': {'object_name': 'Category'},
@@ -89,7 +72,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'reservation_confirmation_needed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'street': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'subscription_end_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 6, 4, 0, 0)'}),
+            'subscription_end_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 6, 5, 0, 0)'}),
             'subscription_mail_sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'timezone': ('django.db.models.fields.CharField', [], {'default': "'UTC'", 'max_length': '30'}),
             'web': ('django.db.models.fields.CharField', [], {'max_length': '100'}),

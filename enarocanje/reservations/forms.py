@@ -123,7 +123,7 @@ class ReservationForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         self.workingHours = kwargs.pop('workingHours')
         self.service = kwargs.pop('service')
-        #self.service_provider_employee = kwargs.pop('serviceprovideremployee')
+        self.service_provider_employee = kwargs.pop('serviceProviderEmployee')
         self.request = request
         super(ReservationForm, self).__init__(*args, **kwargs)
 
@@ -131,6 +131,7 @@ class NonRegisteredUserForm(forms.Form):
     name = forms.CharField(max_length=60, label=_('Name'), required=True)
     phone = forms.CharField(max_length=100, label=_('Phone Number'), required=True)
     email = forms.CharField(max_length=30, label=_('Email address'), required=True)
+    service_notifications = forms.BooleanField(label=_('Allow sending new offers and notices'), required=False)
 
 class GCalSettings(forms.Form):
 

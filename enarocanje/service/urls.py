@@ -13,10 +13,8 @@ urlpatterns = patterns('enarocanje.service.views',
 	url(r'^$', 'browse_providers', name='browseproviders'),
 	url(r'^services/$', 'browse_services', name='browseservices'),
 	url(r'^services/(?P<id>\d+)/comments$', 'service_comments', name='servicecomments'),
+    # 16.4.2014 RokA; added urls for browsing employees
+    url(r'^employees/$', 'browse_employees', name='browseemployees'),
 
-	url(r'^gallery/(?P<id>\d+)', 'view_gallery', name='gallery'),
-
-    url(r'^mynotifications/$', 'mynotifications', name='mynotifications'),
-	url(r'^sendservicenotification/$', 'sendservicenotification', name='sendservicenotification'),
-
+	url(r'^gallery/(?P<id>\d+)', 'view_gallery', name='gallery')
 )

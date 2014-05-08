@@ -1,0 +1,60 @@
+{% extends 'browse/base.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+{% load employee %}
+
+{% block browse_nav_employees %}active{% endblock %}
+
+{% block content_browse %}
+	<div class="row twoone-main">
+		<div class="span2">
+			<ul class="nav nav-list">
+				<form action="">
+					{% if cat %}<input type="hidden" name="category" value="{{ cat }}"/>{% endif %}
+					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
+					{% if sor != 'dist' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
+				</form>
+
+				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
+				{% for sort in sort_choices %}
+					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+				{% endfor %}
+			</ul>
+			<br/>
+		</div>
+		<div class="span10">
+			{% if employees %}
+				<div class="row">
+					{% for employee in employees %}
+						<div class="span5 twoone">
+							<div class="obrobe">
+								<a href="{% url 'gallery' employee.id %}" style="border: 0"><img src="{{ employee.picture_url }}" {{ employee|picturewh:"100,150" }}  class="logotip" /></a>
+								<div class="obrobe-content">
+                                    {% if selected_service %}
+									    <h3 class="obrobe-title"><a style="color: #000000" href="{% url 'service' selected_service.id employee.id %}">{{ employee.first_name }} {{ employee.last_name }}</a></h3>
+                                    {% endif %}
+									{% if employee.description %}
+										<p class="obrobe-extra">
+											<b>{% trans "Description" %}:</b><br/>
+											{{ employee.description }}
+										</p>
+									{% endif %}
+								</div>
+								<br style="clear:left"/>
+							</div>
+						</div>
+
+					{% endfor %}
+				</div>
+
+				{% with employees as paginator %}
+					{% include "browse/pagination.html" %}
+				{% endwith %}
+			{% else %}
+				{% trans "No employees found." %}
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

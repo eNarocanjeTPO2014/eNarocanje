@@ -10,7 +10,11 @@
 {% block service_content %}
 
 {% if minTime and maxTime %}
-	<form method="POST" action="{% url 'reservation' service.id %}">
+{% if service_provider_employee_obj %}
+	<form method="POST" action="{% url 'reservation' service.id service_provider_employee_obj.id%}">
+{% else %}
+    <form method="POST" action="{% url 'reservation2' service.id%}">
+{% endif %}
 		{% csrf_token %}
 
 		<input type="hidden" name="data" value="{{ data|encode_data }}" />
