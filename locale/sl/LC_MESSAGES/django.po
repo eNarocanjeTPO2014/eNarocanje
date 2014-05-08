@@ -69,14 +69,12 @@ msgid "description"
 msgstr "opis"
 
 #: enarocanje/ServiceProviderEmployee/models.py:27
-#, fuzzy
 msgid "active_from"
-msgstr "aktiven od"
+msgstr "aktiven_od"
 
 #: enarocanje/ServiceProviderEmployee/models.py:28
-#, fuzzy
 msgid "active_to"
-msgstr "aktiven do"
+msgstr "aktiven_do"
 
 #: enarocanje/ServiceProviderEmployee/views.py:29
 msgid "Order by last name"
@@ -116,7 +114,7 @@ msgstr "Jezik"
 
 #: enarocanje/accountext/forms.py:19 enarocanje/reservations/forms.py:134
 msgid "Allow sending new offers and notices"
-msgstr ""
+msgstr "Dovoli pošiljanje obvestil o novih ponudbah"
 
 #: enarocanje/accountext/models.py:16 enarocanje/accountext/models.py:22
 #: enarocanje/customers/models.py:14 enarocanje/mailservice/models.py:21
@@ -269,43 +267,40 @@ msgid "Text"
 msgstr "Besedilo"
 
 #: enarocanje/mailservice/models.py:9
-#, fuzzy
 msgid "title"
 msgstr "Naslov"
 
 #: enarocanje/mailservice/models.py:10
 msgid "message"
-msgstr ""
+msgstr "sporočilo"
 
 #: enarocanje/mailservice/models.py:11
-#, fuzzy
 msgid "dateTime"
 msgstr "Čas"
 
 #: enarocanje/mailservice/models.py:12
-#, fuzzy
 msgid "mailType"
-msgstr "E-naslov"
+msgstr "tipMaila"
 
 #: enarocanje/mailservice/models.py:13
 msgid "recipentsNum"
-msgstr ""
+msgstr "steviloPrejemnikov"
 
 #: enarocanje/mailservice/models.py:14
 msgid "recipents"
-msgstr ""
+msgstr "prejemniki"
 
 #: enarocanje/mailservice/models.py:23
 msgid "path"
-msgstr ""
+msgstr "pot"
 
 #: enarocanje/mailservice/models.py:27
 msgid "headerText"
-msgstr ""
+msgstr "glava"
 
 #: enarocanje/mailservice/models.py:28
 msgid "footerText"
-msgstr ""
+msgstr "noga"
 
 #: enarocanje/mailservice/views.py:22
 msgid "Order by date sent"
@@ -1442,9 +1437,8 @@ msgid "Reservation"
 msgstr "Rezervacija"
 
 #: templates/reservations/confirmation.html:18
-#, fuzzy
 msgid "Chosen employee"
-msgstr "Dodaj zaposlenega"
+msgstr "Izbran zaposleni"
 
 #: templates/reservations/confirmation.html:26
 msgid "Your name"
