@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-07 17:48+0200\n"
+"POT-Creation-Date: 2014-05-22 11:58+0200\n"
 "PO-Revision-Date: 2014-01-31 20:34+0100\n"
 "Last-Translator: klemen šavli <klemen@itklinika.si>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -248,11 +248,11 @@ msgstr "e-poštni naslov"
 msgid "full name"
 msgstr "Vaše ime"
 
-#: enarocanje/customers/views.py:19
+#: enarocanje/customers/views.py:21
 msgid "Order by name"
 msgstr "Uredi po imenu"
 
-#: enarocanje/customers/views.py:20
+#: enarocanje/customers/views.py:22
 msgid "Order by last reservation date"
 msgstr "Uredi po datumu rezervacije"
 
@@ -310,7 +310,7 @@ msgstr "Uredi po datumu pošiljanja"
 msgid "Order by title"
 msgstr "Uredi po naslovu"
 
-#: enarocanje/mailservice/views.py:135
+#: enarocanje/mailservice/views.py:137
 msgid "Your messages was sent successfully."
 msgstr "Vaša sporočila so bila uspešno poslana."
 
@@ -1267,6 +1267,10 @@ msgstr "Najdena ni bila nobena stranka."
 #: templates/customers/mycustomers.html:114
 msgid "Add customer"
 msgstr "Dodaj stranko"
+
+#: templates/customers/mycustomers.html:115
+msgid "Export customers to CSV"
+msgstr "Izvozi stranke v CSV"
 
 #: templates/customers/reservations.html:13
 msgid "All reservations"

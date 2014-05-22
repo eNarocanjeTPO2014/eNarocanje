@@ -206,7 +206,7 @@ DEFAULT_FROM_EMAIL = 'info@eorderservice.com'
 #email relay gmail-smtp
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'fri.tpo22@gmail.com'
+EMAIL_HOST_USER = 'tpo22fri@gmail.com'
 EMAIL_HOST_PASSWORD = 'fritpo22'
 EMAIL_PORT = 587
 
