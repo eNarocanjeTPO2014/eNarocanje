@@ -151,7 +151,10 @@ INSTALLED_APPS = (
 	'enarocanje.coupon',
 	'enarocanje.ServiceProviderEmployee',
     'enarocanje.customers',
-    'enarocanje.mailservice'
+    'enarocanje.mailservice',
+    'enarocanje.tasks',
+    'djcelery',
+    'django_twilio'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -206,7 +209,7 @@ DEFAULT_FROM_EMAIL = 'info@eorderservice.com'
 #email relay gmail-smtp
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'fri.tpo22@gmail.com'
+EMAIL_HOST_USER = 'tpo22fri@gmail.com'
 EMAIL_HOST_PASSWORD = 'fritpo22'
 EMAIL_PORT = 587
 
@@ -220,3 +223,12 @@ if SOCIAL_LOGIN:
 		'allauth.socialaccount.providers.google',
 		'allauth.socialaccount.providers.facebook',
 	)
+
+
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+import djcelery
+djcelery.setup_loader()
+
+CELERY_IMPORTS = ('enarocanje.tasks.mytasks')
+CELERY_TIMEZONE = 'Europe/Paris'
