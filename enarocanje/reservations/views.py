@@ -1,6 +1,9 @@
+
 import base64
 import datetime
+import pdb
 import pickle
+import string
 import urllib
 
 from django.conf import settings
@@ -23,6 +26,7 @@ from enarocanje.reservations.gcal import sync
 from enarocanje.reservations.models import Reservation
 from enarocanje.service.models import Service
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
+from enarocanje.tasks.mytasks import send_reminder
 from enarocanje.workinghours.models import WorkingHours
 from forms import ReservationForm, NonRegisteredUserForm
 from rcalendar import getMinMaxTime
@@ -146,6 +150,12 @@ def reservation(request, id, employee_id):
             reserve.service_provider_employee = service_provider_employee_obj
             # Save
             reserve.save()
+
+            #Creating scheduler reminder
+            datetime_reminder = datetime.datetime.combine(reserve.date, reserve.time) - datetime.timedelta(hours=4)
+            send_reminder.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
+
+
             # saving coupon is_valid
             coupons = Coupon.objects.filter(service=service.id)
             for coup in coupons:
@@ -185,6 +195,7 @@ def reservation(request, id, employee_id):
                 url_service = settings.BASE_URL + reverse('service2', args=(service.id,))
 
             sync(service.service_provider)
+
             return render_to_response('reservations/done.html', locals(), context_instance=RequestContext(request))
 
         # Someone else has made a reservation in the meantime
@@ -195,3 +206,5 @@ def reservation(request, id, employee_id):
 def myreservations(request):
     res_confirm = request.user.service_provider.reservation_confirmation_needed
     return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
+
+
