@@ -1,15 +1,18 @@
-import pdb
 import datetime
+
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render_to_response
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+
+from enarocanje.tasks.mytasks import *
+
 # Create your views here.
 from django.template import RequestContext, Context
 from enarocanje.accountext.decorators import for_service_providers
-from enarocanje.accountext.models import ServiceProvider, ServiceProviderImage
+from enarocanje.accountext.models import ServiceProviderImage
 from enarocanje.customers.models import Customer
 from enarocanje.mailservice.forms import EmailForm
 from enarocanje.mailservice.models import MailService
@@ -119,6 +122,11 @@ def sendmail(request):
         recipent_number = 0
         current_datetime = datetime.datetime.today()
 
+
+
+
+
+
         for recipent in all_recipients:
             recipient_reservations = Reservation.objects.filter(customer_id=recipent.id)
             if recipient_reservations.__len__() == 0:
@@ -134,9 +142,13 @@ def sendmail(request):
         sent_mail = MailService(title=title, message=message, mail_type=1, date_time=current_datetime, number_of_recipients=recipent_number, recipients=recipents_ids, service_provider=request.user.service_provider)
         sent_mail.save()
         emailForm = EmailForm()
+
         messages.success(request, _('Your messages was sent successfully.'))
         return HttpResponseRedirect(reverse(mynotifications))
 
     else:
         emailForm = EmailForm()
         return render_to_response('customers/sendmail.html', locals(), context_instance=RequestContext(request))
+
+
+
