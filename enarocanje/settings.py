@@ -151,7 +151,10 @@ INSTALLED_APPS = (
 	'enarocanje.coupon',
 	'enarocanje.ServiceProviderEmployee',
     'enarocanje.customers',
-    'enarocanje.mailservice'
+    'enarocanje.mailservice',
+    'enarocanje.tasks',
+    'djcelery',
+    'django_twilio'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -220,3 +223,12 @@ if SOCIAL_LOGIN:
 		'allauth.socialaccount.providers.google',
 		'allauth.socialaccount.providers.facebook',
 	)
+
+
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+import djcelery
+djcelery.setup_loader()
+
+CELERY_IMPORTS = ('enarocanje.tasks.mytasks')
+CELERY_TIMEZONE = 'Europe/Paris'
