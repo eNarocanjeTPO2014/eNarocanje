@@ -7,9 +7,8 @@ Dependencies:
 	- google-api-python-client
 	- pytz
 	- pyrfc3339
-	- django-post_office
 	- djcelery
-	pip install --upgrade django django-allauth django-bootstrap-toolkit South requests google-api-python-client pytz pyrfc3339 django-post_office django-celery
+	pip install --upgrade django django-allauth django-bootstrap-toolkit South requests google-api-python-client pytz pyrfc3339 django-celery
 
 	- local smtp server
 	apt-get install postfix
