@@ -66,3 +66,6 @@ Navodila za django-celery:
     python manage.py celery worker
     -za izbris vseh neuspelih oz. se ne poslanih taskov
     python manage.py celery purge
+
+    -inštalacija django-twilio
+    sudo pip install django-twilio
