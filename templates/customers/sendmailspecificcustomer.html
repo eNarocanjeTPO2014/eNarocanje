@@ -4,6 +4,7 @@
 {% load url from future %}
 {% load i18n %}
 {% load bootstrap_toolkit %}
+{% load provider %}
 
 
 {% block content %}
@@ -11,13 +12,13 @@
 
 
 <form method="POST" action="">
-    <input type="hidden" name="step" value="2" />
+    <input type="hidden" name="step" value="1" />
     <div id="no-more-tables">
         {% csrf_token %}
-        {{emailForm|as_bootstrap }}
+        {{ conditionsForm | as_bootstrap }}
 
         <div class="form-actions">
-            <button class="btn btn-primary" type="submit" name="action">{% trans 'Send' %}</button>
+            <button class="btn btn-primary" type="submit" name="action">{% trans 'Send e-mail' %}</button>
 
         </div>
     </div>
@@ -25,3 +26,4 @@
 
 
 {% endblock %}
+

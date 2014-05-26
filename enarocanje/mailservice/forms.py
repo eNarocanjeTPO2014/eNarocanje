@@ -7,5 +7,11 @@ __author__ = 'user'
 
 
 class EmailForm(forms.Form):
-    subject = forms.CharField(widget=BootstrapTextInput(attrs={'style':'width:98%'}),label=_('Title'),required=True)
-    message = forms.CharField(widget=Textarea(attrs={'style':'width:98%;max-width:98%'}),label=_('Text'),required=True)
+    subject = forms.CharField(widget=BootstrapTextInput(attrs={'style':'width:98%'}), label=_('Title'), required=True)
+    message = forms.CharField(widget=Textarea(attrs={'style':'width:98%;max-width:98%'}), label=_('Text'), required=True)
+
+class NotificationConditionsForm(forms.Form):
+    regular_customers = forms.ChoiceField(widget=forms.Select(attrs={'style':'width:50%'}), label=_('Poslji obvestila strankam, ki:'), required=True)
+    specific_service = forms.ChoiceField(widget=forms.Select(attrs={'style':'width:50%'}), label=_('Poslji obvestila strankam, ki so obiskale storitev:'), required=True)
+    customers_liking_discounts = forms.ChoiceField(widget=forms.Select(attrs={'style':'width:50%'}), label=_('Poslji obvestila strankam, ki so:'), required=True)
+

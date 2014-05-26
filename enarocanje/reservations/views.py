@@ -26,7 +26,7 @@ from enarocanje.reservations.gcal import sync
 from enarocanje.reservations.models import Reservation
 from enarocanje.service.models import Service
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
-from enarocanje.tasks.mytasks import send_reminder
+from enarocanje.tasks.mytasks import *
 from enarocanje.workinghours.models import WorkingHours
 from forms import ReservationForm, NonRegisteredUserForm
 from rcalendar import getMinMaxTime
@@ -152,9 +152,12 @@ def reservation(request, id, employee_id):
             reserve.save()
 
             #Creating scheduler reminder
-            datetime_reminder = datetime.datetime.combine(reserve.date, reserve.time) - datetime.timedelta(hours=4)
-            send_reminder.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
-
+            if request.user.send_reminders:
+                datetime_reminder = datetime.datetime.combine(reserve.date, reserve.time) - datetime.timedelta(hours=4)
+                if service.service_provider.send_sms_reminder:
+                    send_reminder_sms.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
+                if service.service_provider.send_email_reminder:
+                    send_reminder_email.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
 
             # saving coupon is_valid
             coupons = Coupon.objects.filter(service=service.id)

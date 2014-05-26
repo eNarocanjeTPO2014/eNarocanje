@@ -17,12 +17,14 @@ class SignupForm(forms.Form):
 	phone = forms.CharField(max_length=100, label=_('Phone Number'))
 	language = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Language'))
 	service_notifications=forms.BooleanField(label=_('Allow sending new offers and notices'),required=False)
+	service_reminder=forms.BooleanField(label=_('Allow sending service reminders'),required=False)
 	def save(self, user):
 		user.first_name = self.cleaned_data['first_name']
 		user.last_name = self.cleaned_data['last_name']
 		user.phone = self.cleaned_data['phone']
 		user.language = self.cleaned_data['language']
 		user.service_notifications = self.cleaned_data['service_notifications']
+		user.send_reminders = self.cleaned_data['service_reminder']
 		user.save()
 
 	def __init__(self, *args, **kwargs):

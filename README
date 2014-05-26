@@ -64,8 +64,6 @@ Navodila za django-celery:
 
     -za delovanje reminderjev moramo zagnati celery worker-ja
     python manage.py celery worker
+    python manage.py celery worker --loglevel=info (z logi izpisanimi v cmd-ju)
     -za izbris vseh neuspelih oz. se ne poslanih taskov
     python manage.py celery purge
-
-    -inštalacija django-twilio
-    sudo pip install django-twilio

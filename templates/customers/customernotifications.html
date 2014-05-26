@@ -97,7 +97,9 @@
 	</div>
 
         <div class="form-actions">
-                <a class="btn btn-primary" href="{% url 'sendmail' %}">{% trans "Send mail" %}</a>
+                <a class="btn btn-primary" href="{% url 'sendmail' %}">{% trans "Send mail to all customers" %}</a>
+                <a class="btn btn-primary" href="{% url 'selectcustomers' %}">{% trans "Send mail to selected customers" %}</a>
+
          </div>
 {% endblock %}
 

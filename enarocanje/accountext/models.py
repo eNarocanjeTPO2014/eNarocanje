@@ -34,6 +34,9 @@ class ServiceProvider(models.Model):
 	subscription_end_date = models.DateTimeField(default=datetime.datetime.now() + datetime.timedelta(days=30, hours=0, minutes=0, seconds=0))
 	subscription_mail_sent = models.BooleanField()
 
+	send_email_reminder = models.BooleanField()
+	send_sms_reminder = models.BooleanField()
+
 	reservation_confirmation_needed = models.BooleanField()
 
 	lat = models.FloatField(null=True)
@@ -90,6 +93,7 @@ class User(AbstractUser):
 	language = models.CharField(_('language'), max_length=5, choices=settings.LANGUAGES, default='en')
 	service_provider = models.OneToOneField(ServiceProvider, null=True)
 	referral = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
+	send_reminders  = models.BooleanField()
 
 	def has_service_provider(self):
 		return bool(self.service_provider_id)
