@@ -265,9 +265,7 @@ def allreservations(request):
         for search in SEARCH_CHOICES_RESERVATIONS
     ]
 
-    #TODO: sort - default date+time, ostale moznosti, iskanje in tisti razpored (filtriranje??? - PREVERI!!)
-
-    #TODO: - naredi izbirna polja za search (seznam, izberi, po cem isces!)
+    #TODO: - razpored??
     if q:
         if src == 'customer':
             reservations = reservations.filter(user_fullname__contains = q)
@@ -283,10 +281,10 @@ def allreservations(request):
     elif sor == 'date':
         reservations = reservations.order_by('-date','-time','-service_name')
     elif sor == 'customer':
-        #reservations = reservations.order_by('-user_fullname') #TODO: popravi na priimek po fk
-        reservations = reservations.order_by('customer__last_name','customer__name') #TODO: popravi na priimek po fk
+        #reservations = reservations.order_by('-user_fullname')
+        reservations = reservations.order_by('customer__last_name','customer__name')
     elif sor == 'employee':
-        reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name') #TODO: popravki na fk
+        reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name')
 
 
     #Pagination
