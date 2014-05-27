@@ -40,6 +40,8 @@
 		    	<p>
 		    		<b>{% trans "Employee" %}:</b> {{ service_provider_employee_obj.first_name }} {{ service_provider_employee_obj.last_name }}<br/>
 				</p>
+            {% else %}
+
 			{% endif %}
 			<ul class="nav nav-tabs">
 				<li class="{% block service_nav_reservation %}{% endblock %}">

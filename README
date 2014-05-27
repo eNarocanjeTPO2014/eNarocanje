@@ -45,7 +45,7 @@ Navodila za prevode:
  - nato odpri datoteko python.po in napiši strmsg-je oz. prevode za tiste, ki še niso prevedeni 
  - NUJNO izbriši vrstico #, fuzzy  nad strid prevoda, če ne se ne bo upošteval
  - ko zapišeš vse prevode, vpiši: python manage.py compilemessages
- - obvezno restartaj server za spremembe (terminate process oz. na krn strežniku moraš resetirat apache ( sudo etc/init.d/apache2 restart )
+ - obvezno restartaj server za spremembe (terminate process oz. na krn strežniku moraš resetirat apache (  sudo /etc/init.d/apache2 restart  )
 
  
 Navodila za Git:
