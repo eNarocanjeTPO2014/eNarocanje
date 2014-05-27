@@ -164,7 +164,6 @@ def manage(request):
 # Export selected customers to CSV format
 @for_service_providers
 def exportCSV(request):
-    #TODO: make a function to get all customers needed
     customer_ids = Reservation.objects.filter(service_provider=request.user.service_provider).exclude(customer__isnull=True).values_list('customer_id', flat=True).distinct();
     # Find customers who have not reserved anything yet and were added by service provider
     customers_nonr = Customer.objects.filter(service_provider=request.user.service_provider)

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('enarocanje.reservations',
 	url(r'^myreservations$', 'views.myreservations', name='myreservations_calendar'),
-    url(r'^allreservations$', 'views.allreservations', name='myreservations_table'),
+    url(r'^allreservations/$', 'views.allreservations', name='myreservations_table'),
 	url(r'^myreservations/gcal/$', 'gcal.edit', name='gcal'),
 	url(r'^myreservations/gcal/callback$', 'gcal.callback', name='gcalcallback'),
 

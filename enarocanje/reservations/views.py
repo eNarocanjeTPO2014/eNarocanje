@@ -9,6 +9,7 @@ import urllib
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import send_mass_mail
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -22,6 +23,7 @@ from enarocanje.accountext.models import User
 from enarocanje.common.timeutils import datetime_to_url_format
 from enarocanje.coupon.models import Coupon
 from enarocanje.customers.models import Customer
+from enarocanje.customers.views import construct_url_customers
 from enarocanje.reservations.gcal import sync
 from enarocanje.reservations.models import Reservation
 from enarocanje.service.models import Service
@@ -30,6 +32,37 @@ from enarocanje.tasks.mytasks import *
 from enarocanje.workinghours.models import WorkingHours
 from forms import ReservationForm, NonRegisteredUserForm
 from rcalendar import getMinMaxTime
+
+
+# Choices for sorting reservations
+SORT_CHOICES_RESERVATIONS = (
+    (_('Order by service'), 'service'),
+    (_('Order by date'), 'date'),
+    (_('Order by customer'), 'customer'),
+    (_('Order by employee'), 'employee'),
+)
+
+SEARCH_CHOICES_RESERVATIONS = (
+    (_('Service'), 'service'),
+    (_('Customer'), 'customer'),
+    (_('Employee'), 'employee'),
+)
+
+# Method for constructing url addresses
+def construct_url_reservations( q, src, sor, page):
+    parts = []
+    if q:
+        parts.append('q=%s' % q)
+    if src != 'service':
+        parts.append('src=%s' % src)
+    if sor != 'name':
+        parts.append('sort=%s' % sor)
+    if page:
+        parts.append('page=%s' % page)
+    if parts:
+        return '?' + '&'.join(parts)
+    return reverse(allreservations)
+
 
 # Service reservations
 def reservation2(request, id):
@@ -208,12 +241,68 @@ def reservation(request, id, employee_id):
 #Prikaz koledarja
 @for_service_providers
 def myreservations(request):
-    res_confirm = request.user.service_provider.reservation_confirmation_needed
+    res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
     return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
 
 
 #Prikaz tabele vseh rezervacij
 @for_service_providers
 def allreservations(request):
-    res_confirm = request.user.service_provider.reservation_confirmation_needed
-    return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
+    res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
+    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+    q = request.GET.get('q', '')
+    src = request.GET.get('src','service')
+    sor = request.GET.get('sort', 'date')
+    page = request.GET.get('page')
+
+
+    sort_choices = [
+        (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
+        for sort in SORT_CHOICES_RESERVATIONS
+    ]
+    search_choices = [
+        (search[0], construct_url_reservations(q,  search[1], sor, page), search[1] == src)
+        for search in SEARCH_CHOICES_RESERVATIONS
+    ]
+
+    #TODO: sort - default date+time, ostale moznosti, iskanje in tisti razpored (filtriranje??? - PREVERI!!)
+
+    #TODO: - naredi izbirna polja za search (seznam, izberi, po cem isces!)
+    if q:
+        if src == 'customer':
+            reservations = reservations.filter(user_fullname__contains = q)
+        elif src == 'employee':
+            reservations = reservations.filter(service_provider_employee__last_name__contains = q)
+        else:
+            reservations = reservations.filter(service_name__contains=q)
+
+
+    # Order by
+    if sor == 'service': #date, service, customer, employee
+        reservations = reservations.order_by('-service_name')
+    elif sor == 'date':
+        reservations = reservations.order_by('-date','-time','-service_name')
+    elif sor == 'customer':
+        #reservations = reservations.order_by('-user_fullname') #TODO: popravi na priimek po fk
+        reservations = reservations.order_by('customer__last_name','customer__name') #TODO: popravi na priimek po fk
+    elif sor == 'employee':
+        reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name') #TODO: popravki na fk
+
+
+    #Pagination
+    paginator = Paginator(reservations, 15)
+    try:
+        reservations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reservations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reservations = paginator.page(paginator.num_pages)
+
+    if reservations.has_previous():
+        prev_page = construct_url_reservations(q, src, sor, reservations.previous_page_number())
+    if reservations.has_next():
+        next_page = construct_url_reservations(q, src, sor, reservations.next_page_number())
+
+    return render_to_response('reservations/allreservations.html', locals(), context_instance=RequestContext(request))
