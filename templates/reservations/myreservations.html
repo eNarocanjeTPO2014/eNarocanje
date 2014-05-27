@@ -12,14 +12,17 @@
 
 	<ul class="nav nav-tabs">
 		<li class="active">
-			<a href="{% url 'myreservations' %}">{% trans 'Reservations' %}</a>
+			<a href="{% url 'myreservations_calendar' %}">{% trans 'Calendar' %}</a>
 		</li>
+        <li>
+            <a href="{% url 'myreservations_table' %}">{% trans 'All Reservations' %}</a>
+        </li>
 		{% if res_confirm == True %}
 			<li>
 			<a href="{% url 'myunconfirmedreservations' %}">{% trans 'Unconfirmed reservations' %}</a>
 		</li>
 		{% endif %}
-	</ul>
+    </ul>
 
 	<a href="{% url 'gcal' %}">{% trans "Google Calendar sync settings" %}</a>
 

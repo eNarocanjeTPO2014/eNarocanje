@@ -61,6 +61,8 @@ Navodila za django-celery:
     -sudo pip install django-celery
     -potrebna inštalacia rabbitmq
     -sudo apt-get install rabbitmq-server (ubuntu userji)
+    -potrebna inštalacija django-twilio
+    sudo pip install django-twilio
 
     -za delovanje reminderjev moramo zagnati celery worker-ja
     python manage.py celery worker
