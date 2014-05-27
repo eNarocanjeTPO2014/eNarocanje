@@ -41,7 +41,7 @@ Migracije:
 
 Navodila za prevode:
  -  najprej napiši template in tisti text, ki bi ga rad prevedel, daj v {% trans "moj_tekst" %}
- - Če delaš na Linux: poženi python manage.py makemessages -l sl  (če si na Win, kopiraj datoteke celega projekta nekam na krn server in tam preto putty-ja vpisuj te ukaze)
+ - Če delaš na Linux: poženi python manage.py makemessages -l sl  (če si na Win, kopiraj datoteke celega projekta nekam na krn server in tam preko putty-ja vpisuj te ukaze)
  - nato odpri datoteko python.po in napiši strmsg-je oz. prevode za tiste, ki še niso prevedeni 
  - NUJNO izbriši vrstico #, fuzzy  nad strid prevoda, če ne se ne bo upošteval
  - ko zapišeš vse prevode, vpiši: python manage.py compilemessages
