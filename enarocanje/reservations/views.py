@@ -205,9 +205,15 @@ def reservation(request, id, employee_id):
         return render_to_response('reservations/alreadyreserved.html', locals(), context_instance=RequestContext(request))
     raise Http404
 
+#Prikaz koledarja
 @for_service_providers
 def myreservations(request):
     res_confirm = request.user.service_provider.reservation_confirmation_needed
     return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
 
 
+#Prikaz tabele vseh rezervacij
+@for_service_providers
+def allreservations(request):
+    res_confirm = request.user.service_provider.reservation_confirmation_needed
+    return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
