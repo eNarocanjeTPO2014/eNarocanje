@@ -28,7 +28,10 @@ class ReservationForm(forms.Form):
     time = forms.TimeField(widget=BootstrapTimeInput(), initial=getDefaultReservationTime, label=_('Time'))
     number = forms.CharField(required=False, label='')
     # 8.4.2014 RokA; add service provider employee
-    service_provider_employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all())
+    service_provider_employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all(), required=False)
+    def filter_employees(self, service):
+        self.service_provider_employee.choices = ServiceProviderEmployee.objects.filter(service=service)
+
     def clean_number(self):
         data = self.cleaned_data['number']
         coupons = Coupon.objects.filter(service=self.service.id)

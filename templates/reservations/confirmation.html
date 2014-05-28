@@ -7,7 +7,9 @@
 {% block reservation_content %}
 
 <input type="hidden" name="step" value="3" />
-
+{% if service_provider_employee_obj %}
+    <input type="hidden" name="confemp" value="{{ service_provider_employee_obj.id }}"
+{%  endif %}
 <p>
 	<b>{% trans "Service" %}:</b> {{ service.name }}<br/>
 	<b>{% trans "Duration" %}:</b> {{ service.duration_with_unit }}<br/>
