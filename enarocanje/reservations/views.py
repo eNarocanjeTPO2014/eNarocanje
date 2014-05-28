@@ -70,18 +70,25 @@ def reservation2(request, id):
 
 def reservation(request, id, employee_id):
     service = get_object_or_404(Service, id=id)
-    # 9.4.2014 RokA; add service_provider_employee
-    # 27.4.2014 Klemen: ne dela pregled storitve, ker ne najde employee-ja
+    #Klemen: dobi zaposlenega za to storitev, ce je bil dolocen
     if employee_id > 0:
-        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id)
+        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id, service=service)
     else:
         service_provider_employee_obj = None
+
     if not service.is_active():
         raise Http404
     minTime, maxTime = getMinMaxTime(service.service_provider)
 
     if request.method != 'POST':
-        form = ReservationForm(request, workingHours=None, service=None, serviceProviderEmployee=None)
+        # ce je zaposleni dolocen, ga daj kot initial
+        if service_provider_employee_obj:
+            form = ReservationForm(request, workingHours=None, service=None, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee":service_provider_employee_obj})
+        else:
+            #ce se ni bil izbran
+            form = ReservationForm(request, workingHours=None, service=None, serviceProviderEmployee=service_provider_employee_obj)
+        #napolni combobox z zaposlenimi
+        form.fields['service_provider_employee'].choices = [(e.id, e) for e in ServiceProviderEmployee.objects.filter(service=service)]
         data = {'service_provider_id': service.service_provider_id, 'service_id': service.id,} # 'service_provider_employee_id': service_provider_employee_obj.id }
         return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
 
@@ -102,11 +109,18 @@ def reservation(request, id, employee_id):
     if step == '1':
         # Service, date, time
         # form = ReservationForm(request.POST, workingHours='gergerre')
+        #service_provider_employee_choice = request.POST.get['service_provider_employee']
+        #print service_provider_employee_choice
         form = ReservationForm(request, request.POST, workingHours=workingHours, service=service, serviceProviderEmployee=service_provider_employee_obj)
+
         if form.is_valid():
             data['date'] = form.cleaned_data['date']
             data['time'] = form.cleaned_data['time']
             data['number'] = form.cleaned_data['number']
+            service_provider_employee_obj = form.cleaned_data['service_provider_employee']
+            # ce je bil izbran zaposleni, shrani njegov id in ga prenesi v naslednje step-e
+            if service_provider_employee_obj:
+                data['service_provider_employee'] = form.cleaned_data['service_provider_employee'].id
 
             if request.user.is_authenticated():
                 data['user_id'] = request.user.id
@@ -137,6 +151,11 @@ def reservation(request, id, employee_id):
     if step == '3':
         # Confirmation
 
+        #inicializiraj objekt zaposlenega glede na to, kateri je bil prej izbran
+        if data.get('service_provider_employee'):
+            service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=data.get('service_provider_employee'))
+        else:
+            service_provider_employee_obj = None
         if data.get('date') is None or data.get('time') is None:  # or data.get('user_id') is None:
             raise Http404
         if data.get('user_id') is not None:
@@ -148,6 +167,7 @@ def reservation(request, id, employee_id):
 
         # Checking again if form for reservation is valid
         form = ReservationForm(request, {'date': data.get('date'), 'time': data.get('time')}, workingHours=workingHours, service=service, serviceProviderEmployee=service_provider_employee_obj)
+        #form.fields['service_provider_employee']=service_provider_employee_obj
 
         if form.is_valid():
             # Add a customer
@@ -185,7 +205,14 @@ def reservation(request, id, employee_id):
             reserve.save()
 
             #Creating scheduler reminder
-            if request.user.send_reminders:
+            if data.get('service_notifications'):
+                datetime_reminder = datetime.datetime.combine(reserve.date, reserve.time) - datetime.timedelta(hours=4)
+                if service.service_provider.send_sms_reminder:
+                    send_reminder_sms.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
+                if service.service_provider.send_email_reminder:
+                    send_reminder_email.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
+
+            elif request.user.send_reminders:
                 datetime_reminder = datetime.datetime.combine(reserve.date, reserve.time) - datetime.timedelta(hours=4)
                 if service.service_provider.send_sms_reminder:
                     send_reminder_sms.apply_async((data.get('time'), service.service_provider.name, service.name), eta=datetime_reminder)
