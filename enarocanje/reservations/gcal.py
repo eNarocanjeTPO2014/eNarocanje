@@ -29,7 +29,7 @@ def callback(request):
 		storage = Storage(GCal, 'id', request.user.service_provider, 'credential')
 		storage.put(credential)
 	except FlowExchangeError:
-		return HttpResponseRedirect(reverse('myreservations'))
+		return HttpResponseRedirect(reverse('myreservations_calendar'))
 	return HttpResponseRedirect(reverse(edit))
 
 @for_service_providers
@@ -60,7 +60,7 @@ def edit(request):
 				service_provider.gcal_id = calendar['id']
 			service_provider.save()
 			sync(service_provider)
-			return HttpResponseRedirect(reverse('myreservations'))
+			return HttpResponseRedirect(reverse('myreservations_calendar'))
 	else:
 		form = GCalSettings(calendars=calendars, initial=initial)
 
