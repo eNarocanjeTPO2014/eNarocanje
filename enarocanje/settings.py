@@ -8,9 +8,9 @@ SOCIAL_LOGIN = True
 
 ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
-#BASE_URL = 'http://krn.fri.uni-lj.si'
+BASE_URL = 'http://krn.fri.uni-lj.si'
 #spremeni, ko das na streznik
-BASE_URL = "http://localhost:8000"
+#BASE_URL = "http://localhost:8000"
 
 ADMINS = ()
 
@@ -209,7 +209,7 @@ DEFAULT_FROM_EMAIL = 'info@eorderservice.com'
 #email relay gmail-smtp
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'tpo22fri@gmail.com'
+EMAIL_HOST_USER = 'tpo22fri2@gmail.com'
 EMAIL_HOST_PASSWORD = 'fritpo22'
 EMAIL_PORT = 587
 
