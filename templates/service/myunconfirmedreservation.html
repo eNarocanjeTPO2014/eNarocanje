@@ -12,8 +12,16 @@
 		<li>
 			<a href="{% url 'myreservations_calendar' %}">{% trans 'Calendar' %}</a>
 		</li>
-        <li>
-            <a href="{% url 'myreservations_table' %}">{% trans 'All Reservations' %}</a>
+        <li class="dropdown ">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            All Reservations
+            <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+               <li> <a href="{% url 'myreservations_table' %}">{% trans 'All time' %}</a> </li>
+               <li><a href="{% url 'myreservations_thisweek' %}">{%  trans 'This week' %}</a></li>
+               <li><a href="{% url 'myreservations_nextweek' %}">{%  trans 'Next week' %}</a></li>
+            </ul>
         </li>
 		{% if res_confirm == True %}
 			<li class="active">
