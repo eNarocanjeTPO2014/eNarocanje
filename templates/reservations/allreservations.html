@@ -17,8 +17,16 @@
 		<li>
 			<a href="{% url 'myreservations_calendar' %}">{% trans 'Calendar' %}</a>
 		</li>
-        <li class="active">
-            <a href="{% url 'myreservations_table' %}">{% trans 'All Reservations' %}</a>
+        <li class="dropdown active">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            All Reservations
+            <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+               <li> <a href="{% url 'myreservations_table' %}">{% trans 'All time' %}</a> </li>
+               <li><a href="{% url 'myreservations_thisweek' %}">{%  trans 'This week' %}</a></li>
+               <li><a href="{% url 'myreservations_nextweek' %}">{%  trans 'Next week' %}</a></li>
+            </ul>
         </li>
 		{% if res_confirm == True %}
 			<li>
@@ -26,7 +34,12 @@
 		</li>
 		{% endif %}
     </ul>
+         <form method="POST" action="" id="filter-form" class="form-horizontal">
+                {% csrf_token %}
+                {{ resForm | as_bootstrap }}
 
+                </form>
+    <br />
 	<div class="row-fluid">
 		<div class="span2">
 			<ul class="nav nav-list">
@@ -44,6 +57,7 @@
 				{% for sort in sort_choices %}
 					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
 				{% endfor %}
+
 			</ul>
 			<br/>
 		</div>
@@ -106,12 +120,13 @@
 		</div>
 
 	</div>
-    <div class="form-actions">
-        <a class="btn btn-primary" href="{% url 'addcustomer' %}">{% trans "Add customer" %}</a>
-    </div>
+
 {% endblock %}
 
 {% block javascript %}
 	{{ block.super }}
+    	$('#filter-form').change(function() {
+		$('#filter-form').submit();
+	});
 
 {% endblock %}

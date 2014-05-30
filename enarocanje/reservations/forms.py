@@ -8,6 +8,7 @@ from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import BootstrapDateInput, BootstrapTimeInput
 from enarocanje.coupon.models import Coupon
 from enarocanje.reservations.models import Reservation
+from enarocanje.service.models import Service
 from enarocanje.workinghours.models import WorkingHours, Absence
 
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
@@ -153,3 +154,9 @@ class GCalSettings(forms.Form):
             ],
             label=''
         )
+
+class ReservationsForm(forms.Form):
+    employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all(), required=False, label=_('Select Employee:'))
+    def __init__(self, *args, **kwargs):
+        self.employee = kwargs.pop('employee')
+        super(ReservationsForm, self).__init__(*args, **kwargs)

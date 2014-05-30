@@ -3,6 +3,8 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('enarocanje.reservations',
 	url(r'^myreservations$', 'views.myreservations', name='myreservations_calendar'),
     url(r'^allreservations/$', 'views.allreservations', name='myreservations_table'),
+    url(r'^allreservations/this$', 'views.allreservations_this', name='myreservations_thisweek'),
+    url(r'^allreservations/next$', 'views.allreservations_next', name='myreservations_nextweek'),
 	url(r'^myreservations/gcal/$', 'gcal.edit', name='gcal'),
 	url(r'^myreservations/gcal/callback$', 'gcal.callback', name='gcalcallback'),
 

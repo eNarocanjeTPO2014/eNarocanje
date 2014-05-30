@@ -30,7 +30,7 @@ from enarocanje.service.models import Service
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
 from enarocanje.tasks.mytasks import *
 from enarocanje.workinghours.models import WorkingHours
-from forms import ReservationForm, NonRegisteredUserForm
+from forms import ReservationForm, NonRegisteredUserForm, ReservationsForm
 from rcalendar import getMinMaxTime
 
 
@@ -275,6 +275,146 @@ def myreservations(request):
 #Prikaz tabele vseh rezervacij
 @for_service_providers
 def allreservations(request):
+    res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
+    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+    q = request.GET.get('q', '')
+    src = request.GET.get('src','service')
+    sor = request.GET.get('sort', 'date')
+    page = request.GET.get('page')
+
+
+    sort_choices = [
+        (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
+        for sort in SORT_CHOICES_RESERVATIONS
+    ]
+    search_choices = [
+        (search[0], construct_url_reservations(q,  search[1], sor, page), search[1] == src)
+        for search in SEARCH_CHOICES_RESERVATIONS
+    ]
+
+
+        #Filtering by Employee
+    if request.method != 'POST':
+       resForm = ReservationsForm(employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+    elif request.method == 'POST':
+        resForm = ReservationsForm(request.POST, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+        if resForm.is_valid():
+            print resForm.cleaned_data['employee']
+            if resForm.cleaned_data['employee'] == None:
+                reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+            else:
+                reservations = reservations.filter(service_provider_employee=resForm.cleaned_data['employee'])
+
+    #TODO: - razpored??
+    if q:
+        if src == 'customer':
+            reservations = reservations.filter(user_fullname__contains = q)
+        elif src == 'employee':
+            reservations = reservations.filter(service_provider_employee__last_name__contains = q)
+        else:
+            reservations = reservations.filter(service_name__contains=q)
+
+
+    # Order by
+    if sor == 'service': #date, service, customer, employee
+        reservations = reservations.order_by('-service_name')
+    elif sor == 'date':
+        reservations = reservations.order_by('-date','-time','-service_name')
+    elif sor == 'customer':
+        #reservations = reservations.order_by('-user_fullname')
+        reservations = reservations.order_by('customer__last_name','customer__name')
+    elif sor == 'employee':
+        reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name')
+
+
+
+    #Pagination
+    paginator = Paginator(reservations, 15)
+    try:
+        reservations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reservations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reservations = paginator.page(paginator.num_pages)
+
+    if reservations.has_previous():
+        prev_page = construct_url_reservations(q, src, sor, reservations.previous_page_number())
+    if reservations.has_next():
+        next_page = construct_url_reservations(q, src, sor, reservations.next_page_number())
+
+    return render_to_response('reservations/allreservations.html', locals(), context_instance=RequestContext(request))
+
+
+
+
+#Prikaz tabele vseh rezervacij
+@for_service_providers
+def allreservations_this(request):
+    res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
+    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+    q = request.GET.get('q', '')
+    src = request.GET.get('src','service')
+    sor = request.GET.get('sort', 'date')
+    page = request.GET.get('page')
+
+
+    sort_choices = [
+        (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
+        for sort in SORT_CHOICES_RESERVATIONS
+    ]
+    search_choices = [
+        (search[0], construct_url_reservations(q,  search[1], sor, page), search[1] == src)
+        for search in SEARCH_CHOICES_RESERVATIONS
+    ]
+
+    #TODO: - razpored??
+    if q:
+        if src == 'customer':
+            reservations = reservations.filter(user_fullname__contains = q)
+        elif src == 'employee':
+            reservations = reservations.filter(service_provider_employee__last_name__contains = q)
+        else:
+            reservations = reservations.filter(service_name__contains=q)
+
+
+    # Order by
+    if sor == 'service': #date, service, customer, employee
+        reservations = reservations.order_by('-service_name')
+    elif sor == 'date':
+        reservations = reservations.order_by('-date','-time','-service_name')
+    elif sor == 'customer':
+        #reservations = reservations.order_by('-user_fullname')
+        reservations = reservations.order_by('customer__last_name','customer__name')
+    elif sor == 'employee':
+        reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name')
+
+
+    #Pagination
+    paginator = Paginator(reservations, 15)
+    try:
+        reservations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        reservations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        reservations = paginator.page(paginator.num_pages)
+
+    if reservations.has_previous():
+        prev_page = construct_url_reservations(q, src, sor, reservations.previous_page_number())
+    if reservations.has_next():
+        next_page = construct_url_reservations(q, src, sor, reservations.next_page_number())
+
+    return render_to_response('reservations/allreservations.html', locals(), context_instance=RequestContext(request))
+
+
+
+
+#Prikaz tabele vseh rezervacij
+@for_service_providers
+def allreservations_next(request):
     res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
     reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
     q = request.GET.get('q', '')
