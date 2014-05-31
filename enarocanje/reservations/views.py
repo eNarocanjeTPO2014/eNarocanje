@@ -17,6 +17,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from setuptools.command.sdist import re_finder
 
 from enarocanje.accountext.decorators import for_service_providers
 from enarocanje.accountext.models import User
@@ -282,7 +283,7 @@ def allreservations(request):
     sor = request.GET.get('sort', 'date')
     page = request.GET.get('page')
 
-
+    selEmployee = request.session.get('se')
     sort_choices = [
         (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
         for sort in SORT_CHOICES_RESERVATIONS
@@ -292,20 +293,23 @@ def allreservations(request):
         for search in SEARCH_CHOICES_RESERVATIONS
     ]
 
-
-        #Filtering by Employee
+    #Filtering by Employee
     if request.method != 'POST':
-       resForm = ReservationsForm(employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+       if selEmployee:
+           resForm = ReservationsForm(sp=request.user.service_provider, employee=selEmployee, initial={"employee": selEmployee})
+           reservations = reservations = reservations.filter(service_provider_employee=selEmployee)
+       else:
+        resForm = ReservationsForm(sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
     elif request.method == 'POST':
-        resForm = ReservationsForm(request.POST, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+        resForm = ReservationsForm(request.POST,  sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider) )
         if resForm.is_valid():
-            print resForm.cleaned_data['employee']
             if resForm.cleaned_data['employee'] == None:
                 reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+                request.session['se'] = None
             else:
                 reservations = reservations.filter(service_provider_employee=resForm.cleaned_data['employee'])
+                request.session['se'] = resForm.cleaned_data['employee']
 
-    #TODO: - razpored??
     if q:
         if src == 'customer':
             reservations = reservations.filter(user_fullname__contains = q)
@@ -349,17 +353,24 @@ def allreservations(request):
 
 
 
-#Prikaz tabele vseh rezervacij
+#Prikaz tabele vseh rezervacij v tem tednu
 @for_service_providers
 def allreservations_this(request):
+
+    date = datetime.date.today()
+    start_week = date - datetime.timedelta(date.weekday())
+    end_week = start_week + datetime.timedelta(6)
+    range = [start_week, end_week]
+
+
     res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
-    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0, date__range=[start_week, end_week]).exclude(customer__isnull=True).order_by('date', 'time')
     q = request.GET.get('q', '')
     src = request.GET.get('src','service')
     sor = request.GET.get('sort', 'date')
     page = request.GET.get('page')
 
-
+    selEmployee = request.session.get('se')
     sort_choices = [
         (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
         for sort in SORT_CHOICES_RESERVATIONS
@@ -369,7 +380,23 @@ def allreservations_this(request):
         for search in SEARCH_CHOICES_RESERVATIONS
     ]
 
-    #TODO: - razpored??
+    #Filtering by Employee
+    if request.method != 'POST':
+       if selEmployee:
+           resForm = ReservationsForm(sp=request.user.service_provider, employee=selEmployee, initial={"employee": selEmployee})
+           reservations = reservations = reservations.filter(service_provider_employee=selEmployee, is_deny=0, date__range=[start_week, end_week]).exclude(customer__isnull=True).order_by('date', 'time')
+       else:
+        resForm = ReservationsForm(sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+    elif request.method == 'POST':
+        resForm = ReservationsForm(request.POST,  sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider) )
+        if resForm.is_valid():
+            if resForm.cleaned_data['employee'] == None:
+                reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0, date__range=[start_week, end_week]).exclude(customer__isnull=True).order_by('date', 'time')
+                request.session['se'] = None
+            else:
+                reservations = reservations.filter(service_provider_employee=resForm.cleaned_data['employee'])
+                request.session['se'] = resForm.cleaned_data['employee']
+
     if q:
         if src == 'customer':
             reservations = reservations.filter(user_fullname__contains = q)
@@ -383,12 +410,13 @@ def allreservations_this(request):
     if sor == 'service': #date, service, customer, employee
         reservations = reservations.order_by('-service_name')
     elif sor == 'date':
-        reservations = reservations.order_by('-date','-time','-service_name')
+        reservations = reservations.order_by('date','time','-service_name')
     elif sor == 'customer':
         #reservations = reservations.order_by('-user_fullname')
         reservations = reservations.order_by('customer__last_name','customer__name')
     elif sor == 'employee':
         reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name')
+
 
 
     #Pagination
@@ -407,22 +435,32 @@ def allreservations_this(request):
     if reservations.has_next():
         next_page = construct_url_reservations(q, src, sor, reservations.next_page_number())
 
-    return render_to_response('reservations/allreservations.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('reservations/allreservations_this.html', locals(), context_instance=RequestContext(request))
 
 
 
-
-#Prikaz tabele vseh rezervacij
+#Prikaz tabele vseh rezervacij v naslednjem tednu
 @for_service_providers
 def allreservations_next(request):
+    date = datetime.date.today()
+    start_week_this = date - datetime.timedelta(date.weekday())
+    start_week_next = start_week_this + datetime.timedelta(7)
+    end_week_next = start_week_next + datetime.timedelta(6)
+    print date
+    print start_week_next
+    print end_week_next
+    range = [start_week_next, end_week_next]
+    print range
+
+
     res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
-    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0).exclude(customer__isnull=True)
+    reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0, date__range=[start_week_next, end_week_next]).exclude(customer__isnull=True).order_by('date', 'time')
     q = request.GET.get('q', '')
     src = request.GET.get('src','service')
     sor = request.GET.get('sort', 'date')
     page = request.GET.get('page')
 
-
+    selEmployee = request.session.get('se')
     sort_choices = [
         (sort[0], construct_url_reservations(q, src, sort[1], page), sort[1] == sor)
         for sort in SORT_CHOICES_RESERVATIONS
@@ -432,7 +470,23 @@ def allreservations_next(request):
         for search in SEARCH_CHOICES_RESERVATIONS
     ]
 
-    #TODO: - razpored??
+    #Filtering by Employee
+    if request.method != 'POST':
+       if selEmployee:
+           resForm = ReservationsForm(sp=request.user.service_provider, employee=selEmployee, initial={"employee": selEmployee})
+           reservations = reservations = reservations.filter(service_provider_employee=selEmployee, is_deny=0, date__range=[start_week_next, end_week_next]).exclude(customer__isnull=True).order_by('date', 'time')
+       else:
+        resForm = ReservationsForm(sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider))
+    elif request.method == 'POST':
+        resForm = ReservationsForm(request.POST,  sp=request.user.service_provider, employee=ServiceProviderEmployee.objects.filter(service_provider=request.user.service_provider) )
+        if resForm.is_valid():
+            if resForm.cleaned_data['employee'] == None:
+                reservations = Reservation.objects.filter(service_provider=request.user.service_provider, is_deny=0, date__range=[start_week_next, end_week_next]).exclude(customer__isnull=True).order_by('date', 'time')
+                request.session['se'] = None
+            else:
+                reservations = reservations.filter(service_provider_employee=resForm.cleaned_data['employee'])
+                request.session['se'] = resForm.cleaned_data['employee']
+
     if q:
         if src == 'customer':
             reservations = reservations.filter(user_fullname__contains = q)
@@ -446,12 +500,13 @@ def allreservations_next(request):
     if sor == 'service': #date, service, customer, employee
         reservations = reservations.order_by('-service_name')
     elif sor == 'date':
-        reservations = reservations.order_by('-date','-time','-service_name')
+        reservations = reservations.order_by('date','time','-service_name')
     elif sor == 'customer':
         #reservations = reservations.order_by('-user_fullname')
         reservations = reservations.order_by('customer__last_name','customer__name')
     elif sor == 'employee':
         reservations = reservations.order_by('-service_provider_employee__last_name', '-service_provider_employee__first_name')
+
 
 
     #Pagination
@@ -470,4 +525,6 @@ def allreservations_next(request):
     if reservations.has_next():
         next_page = construct_url_reservations(q, src, sor, reservations.next_page_number())
 
-    return render_to_response('reservations/allreservations.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('reservations/allreservations_next.html', locals(), context_instance=RequestContext(request))
+
+

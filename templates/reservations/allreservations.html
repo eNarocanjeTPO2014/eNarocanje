@@ -8,7 +8,7 @@
 
 {% block content %}
 <h1>{% trans 'My Reservations' %}</h1>
-    <ul class="nav nav-pills pull-right visible-desktop">
+    <ul class="nav nav-pills pull-right visible-desktop" id="id_sort">
 	{% for sort in sort_choices %}
 		<li {% if sort.2 %}class="active"{% endif %}><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
 	{% endfor %}
@@ -37,16 +37,16 @@
          <form method="POST" action="" id="filter-form" class="form-horizontal">
                 {% csrf_token %}
                 {{ resForm | as_bootstrap }}
-
                 </form>
     <br />
 	<div class="row-fluid">
 		<div class="span2">
 			<ul class="nav nav-list">
-				<form action="">
+				<form action="" >
 					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
 					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
                     {% if src != 'service' %}<input type="hidden" name="src" value="{{ src }}"/>{% endif %}
+
 				</form>
                 <li class="nav-header">{% trans "Search by" %}</li>
 				{% for search in search_choices %}

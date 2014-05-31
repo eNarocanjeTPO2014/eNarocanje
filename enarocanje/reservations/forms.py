@@ -158,5 +158,8 @@ class GCalSettings(forms.Form):
 class ReservationsForm(forms.Form):
     employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all(), required=False, label=_('Select Employee:'))
     def __init__(self, *args, **kwargs):
+        sp = kwargs.pop('sp')
         self.employee = kwargs.pop('employee')
         super(ReservationsForm, self).__init__(*args, **kwargs)
+        if sp:
+            self.fields['employee'].queryset =  ServiceProviderEmployee.objects.filter(service_provider=sp)
