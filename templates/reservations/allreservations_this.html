@@ -1,0 +1,175 @@
+{% extends 'main.html' %}
+
+{% load url from future %}
+{% load i18n %}
+{% load bootstrap_toolkit %}
+
+{% block main_nav_reservations %}active{% endblock %}
+
+{% block content %}
+<h1>{% trans 'My Reservations - This week' %}</h1>
+    <ul class="nav nav-pills pull-right visible-desktop" id="id_sort">
+	{% for sort in sort_choices %}
+		<li {% if sort.2 %}class="active"{% endif %}><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+	{% endfor %}
+    </ul>
+	<ul class="nav nav-tabs">
+		<li>
+			<a href="{% url 'myreservations_calendar' %}">{% trans 'Calendar' %}</a>
+		</li>
+        <li class="dropdown active">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            All Reservations
+            <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+               <li> <a href="{% url 'myreservations_table' %}">{% trans 'All time' %}</a> </li>
+               <li><a href="{% url 'myreservations_thisweek' %}">{%  trans 'This week' %}</a></li>
+               <li><a href="{% url 'myreservations_nextweek' %}">{%  trans 'Next week' %}</a></li>
+            </ul>
+        </li>
+		{% if res_confirm == True %}
+			<li>
+			<a href="{% url 'myunconfirmedreservations' %}">{% trans 'Unconfirmed reservations' %}</a>
+		</li>
+		{% endif %}
+    </ul>
+         <form method="POST" action="" id="filter-form" class="form-horizontal">
+                {% csrf_token %}
+                {{ resForm | as_bootstrap }}
+                </form>
+    <br />
+	<div class="row-fluid">
+		<div class="span2">
+			<ul class="nav nav-list">
+				<form action="" >
+					<input type="text" name="q" placeholder="{% trans "Search" %}" value="{% if q %}{{ q }}{% endif %}" style="width: 100%" />
+					{% if sor != 'date' %}<input type="hidden" name="sort" value="{{ sor }}"/>{% endif %}
+                    {% if src != 'service' %}<input type="hidden" name="src" value="{{ src }}"/>{% endif %}
+
+				</form>
+                <li class="nav-header">{% trans "Search by" %}</li>
+				{% for search in search_choices %}
+					<li class=" {% if search.2 %}active{% endif %}"><a href="{{ search.1 }}">{{ search.0 }}</a></li>
+				{% endfor %}
+                <hr />
+				<li class="nav-header hidden-desktop">{% trans "Order by" %}</li>
+				{% for sort in sort_choices %}
+					<li class="hidden-desktop {% if sort.2 %}active{% endif %}"><a href="{{ sort.1 }}">{{ sort.0 }}</a></li>
+				{% endfor %}
+
+			</ul>
+			<br/>
+		</div>
+		<div class="span10">
+			{% if reservations %}
+
+                <div >
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {% trans 'Date' %}
+                                </th>
+                                <th>
+                                    {% trans 'Time' %}
+                                </th>
+
+                                <th>
+                                    {% trans 'Service' %}
+                                </th>
+                                 <th>
+                                    {% trans 'Customer' %}
+                                </th>
+
+                                <th>
+                                    {% trans 'Employee' %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in reservations %}
+                                <tr>
+
+                                    {% ifchanged reservation.date %}
+                                        {% if forloop.counter0 != 0 %}
+                                           <td data-title="{% trans 'Date' %}" style="border-top: 1px black solid;">
+                                             <b>{{ reservation.date | date:'l' }}</b>  ({{ reservation.date }})
+                                           </td>
+                                            <td data-title="{% trans 'Time' %}" style="border-top: 1px black solid;">
+                                                {{ reservation.time }}
+                                            </td>
+                                             <td data-title="{% trans 'Service' %}" style="border-top: 1px black solid;">
+                                                {{ reservation.service_name }}
+                                            </td>
+                                             <td data-title="{% trans 'Customer' %}" style="border-top: 1px black solid;">
+                                                {{ reservation.customer.full_name}}
+                                            </td>
+                                             <td data-title="{% trans 'Employee' %}" style="border-top: 1px black solid;">
+                                                {% if reservation.service_provider_employee %} {{ reservation.service_provider_employee }} {% else %} {% trans "No employee selected" %} {% endif %}
+                                            </td>
+
+                                        {%  else %}
+                                            <td data-title="{% trans 'Date' %}">
+                                            <b>{{ reservation.date | date:'l' }}</b>  ({{ reservation.date }})
+                                            </td>
+                                            <td data-title="{% trans 'Time' %}">
+                                                  {{ reservation.time }}
+                                            </td>
+                                             <td data-title="{% trans 'Service' %}">
+                                                {{ reservation.service_name }}
+                                            </td>
+                                             <td data-title="{% trans 'Customer' %}">
+                                                {{ reservation.customer.full_name}}
+                                            </td>
+                                             <td data-title="{% trans 'Employee' %}">
+                                                {% if reservation.service_provider_employee %} {{ reservation.service_provider_employee }} {% else %} {% trans "No employee selected" %} {% endif %}
+                                            </td>
+
+                                        {%  endif %}
+                                    {%  else %}
+                                        <td data-title="{% trans 'Date' %}">
+                                        <b>{{ reservation.date | date:'l' }}</b>  ({{ reservation.date }})
+                                        </td>
+                                        <td data-title="{% trans 'Time' %}">
+                                        {{ reservation.time }}
+                                        </td>
+                                         <td data-title="{% trans 'Service' %}">
+                                         {{ reservation.service_name }}
+                                         </td>
+                                         <td data-title="{% trans 'Customer' %}">
+                                            {{ reservation.customer.full_name}}
+                                        </td>
+                                         <td data-title="{% trans 'Employee' %}">
+                                            {% if reservation.service_provider_employee %} {{ reservation.service_provider_employee }} {% else %} {% trans "No employee selected" %} {% endif %}
+                                        </td>
+
+                                    {% endifchanged %}
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+				{% with reservations as paginator %}
+					{% include "browse/pagination.html" %}
+				{% endwith %}
+			{% else %}
+				{% trans "No reservations found." %}
+			{% endif %}
+		</div>
+
+	</div>
+
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+    	$('#filter-form').change(function() {
+		$('#filter-form').submit();
+	});
+
+{% endblock %}
