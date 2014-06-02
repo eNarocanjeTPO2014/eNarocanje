@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
-from enarocanje.service.models import Service
+from enarocanje.service.models import Service, Discount
 
 from enarocanje.tasks.mytasks import *
 
@@ -156,14 +156,18 @@ def selectcustomers(request):
 
 
         conditionsForm = NotificationConditionsForm()
+        '''
+            (('0', _('Moje storitve obiscejo vsaj 1-krat')),('1', _('Obiskujejo moje storitve veckrat letno')),('2', _('Obiskujejo moje storitve vsaj 1-krat mesecno')))
 
-        conditionsForm.fields['regular_customers'].choices =(('0','Moje storitve obiscejo vsaj 1-krat'),('1','Obiskujejo moje storitve veckrat letno'),('2','Obiskujejo moje storitve vsaj 1-krat mesecno'))
+            (('0', _('Obiskale storitev brez popusta')), ('1', _('Obiskale storitev z najvec 20% popustom')), ('2', _('Obiskale storitev z vsaj 20% in najvec 40% popusta')), ('3', _('Obiskale storitev z vsaj 40% popustom')))
+        '''
+        conditionsForm.fields['regular_customers'].choices =(('0', _('attended services at least once')), ('1', _('is attending services more than once per year')), ('2', _('is attending services on a monthly basis')))
 
-        services = [('-1','Vse storitve')]
+        services = [('-1', _('one of my services'))]
         services += [(service.id, service.name) for service in Service.objects.filter(service_provider=request.user.service_provider)]
         conditionsForm.fields['specific_service'].choices = services
 
-        conditionsForm.fields['customers_liking_discounts'].choices = (('0','Obiskale storitev brez popusta'), ('1','Obiskale storitev z najvec 20% popustom'), ('2','Obiskale storitev z vsaj 20% in najvec 40% popusta'), ('3','Obiskale storitev z vsaj 40% popustom'))
+        conditionsForm.fields['customers_liking_discounts'].choices = (('0', _('no discount')), ('1', _('discount less than 20%')), ('2', _('discount between 20% and 40%')), ('3', _('discount greater than 40%')))
 
 
 
@@ -180,10 +184,11 @@ def selectcustomers(request):
 
 
         mycustomers_in_reservations = Reservation.objects.filter(service_provider=request.user.service_provider).exclude(customer__isnull=True)
+        regular_customers_choice_values = [0, 5, 8]
 
-        regular_customers_choice_values = [1, 4, 8]
-        customers_liking_discounts_choice_values = [0,20,40,70]
+
         regular_customers = []
+
         for i in range(0, mycustomers_in_reservations.__len__()):
             customer = mycustomers_in_reservations[i]
             counter = 0
@@ -199,6 +204,22 @@ def selectcustomers(request):
                         counter += 1
                 if counter >= regular_customers_choice_values[int(regular_customers_choice)]:
                     regular_customers.append(customer)
+        '''
+        if regular_customers_choice == '0':
+            customers = Customer.objects.filter(number_of_reservations__gte=1)
+            array = []
+            for customer in customers:
+                array.append(customer.id)
+            regular_customers = Reservation.objects.filter(customer_id=array)
+
+        elif regular_customers_choice == '1':
+            customers = Customer.objects.filter(number_of_reservations__gt=1, number_of_reservations__lte=5)
+            regular_customers = Reservation.objects.filter(customer=customers, service_provider=request.user.service_provider)
+        else:
+            customers = Customer.objects.filter(number_of_reservations__gt=4)
+            regular_customers = Reservation.objects.filter(customer=customers, service_provider=request.user.service_provider)
+
+        '''
 
         customer_attended_service = []
         for i in range(0, regular_customers.__len__()):
@@ -208,17 +229,58 @@ def selectcustomers(request):
             else:
                 customer_attended_service = regular_customers
 
+
+        customers_used_discount = []
+        if customers_liking_discounts_choice[0] != '0':
+
+            for customer in customer_attended_service:
+                service_id = customer.service_id
+                service_provider = customer.service_provider
+                reservation_date = customer.date
+                service_discounts = Discount.objects.filter(service_id=service_id)
+                for service_discount in service_discounts:
+                    discount_from = service_discount.valid_from
+                    discount_to = service_discount.valid_to
+                    discount = service_discount.discount
+                    if discount_from <= reservation_date <= discount_to:
+
+                        if customers_liking_discounts_choice == '1':
+
+                            if 0 < discount <= 20:
+
+                               customers_used_discount.append(customer)
+
+                        elif customers_liking_discounts_choice == '2':
+                            if 20 < discount <= 40:
+                               customers_used_discount.append(customer)
+
+                        else:
+
+                            if discount > 40:
+
+                               customers_used_discount.append(customer)
+
+
+        else:
+            customers_used_discount = customer_attended_service
+
         recipients = []
-        for i in range(0, customer_attended_service.__len__()):
+        for i in range(0, customers_used_discount.__len__()):
             insert = True
             for j in range(0, recipients.__len__()):
-                if  recipients[j].user_email == customer_attended_service[i].user_email:
+                if recipients[j].customer_id == customers_used_discount[i].customer_id:
                     insert = False
             if insert:
-                recipients.append(customer_attended_service[i])
+                recipients.append(customers_used_discount[i])
 
-        request.session['recipients']= recipients
-
+        request.session['recipients'] = recipients
+        recipients_num = recipients.__len__()
+        if recipients_num == 0:
+            messages.warning(request, _('There is no matching customers!'))
+        elif recipients_num == 1:
+            messages.info(request, _('You are about to send an email to your customer!'))
+        else:
+            messages.info(request, _('You are about to send emails to '+str(recipients_num)+' customers!'))
         emailForm = EmailForm()
         return render_to_response('customers/sendmail.html', locals(), context_instance=RequestContext(request))
     if step == '2':
