@@ -6,8 +6,10 @@ from django.views.generic.base import TemplateView
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	url(r'^accounts/signup/$', 'enarocanje.accountext.views.signup'),
+	url(r'^accounts/signup/$', 'enarocanje.accountext.views.singup'),
+    url(r'^accounts/signup/provider/$', 'enarocanje.accountext.views.providersignup'),
 	url(r'^accounts/profile/$', 'enarocanje.accountext.views.account_profile', name='account_profile'),
+
 	url(r'^', include('enarocanje.service.urls')),
 	url(r'^', include('enarocanje.workinghours.urls')),
 	url(r'^', include('enarocanje.reservations.urls')),
