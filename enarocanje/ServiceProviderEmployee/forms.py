@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import ClearableImageInput
 from enarocanje.common.widgets import BootstrapDateInput
+from enarocanje.service.models import Service
 from models import ServiceProviderEmployee, ServiceProviderEmployeeImage
 
 

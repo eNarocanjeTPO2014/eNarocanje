@@ -1,0 +1,24 @@
+{% extends "main.html" %}
+
+{% load url from future %}
+{% load i18n %}
+
+
+{% block content %}
+    <link rel="stylesheet" href="/static/css/wizardNav.css">
+
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        <ul class='nav nav-wizard'>
+            <li class='{% block step_provider %}{% endblock %}'><a>{% trans 'Provider creation' %}</a></li>
+            <li class='{% block step_service %}{% endblock %} '><a>{% trans 'Add services' %}</a></li>
+            <li class='{% block step_employee %}{% endblock %}'><a>{% trans 'Add employees' %}</a></li>
+        </ul>
+
+
+        {% block provider_content %}
+        {% endblock %}
+    </form>
+
+{% endblock %}
