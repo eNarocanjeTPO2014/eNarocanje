@@ -19,7 +19,7 @@ class ServiceProviderEmployee(models.Model):
     )
 
     service_provider = models.ForeignKey(ServiceProvider, related_name='employees')
-    service = models.ForeignKey(Service, related_name='employees')
+    service = models.ForeignKey(Service, related_name='employees', null=True, default=None)
     first_name = models.CharField(_('first_name'), max_length=100)
     last_name = models.CharField(_('last_name'), max_length=100)
     #sex = models.CharField(_('sex'), choices=SEX_SERVICE_CHOICES, max_length=1, null=True, blank=True)

@@ -30,7 +30,7 @@ from enarocanje.reservations.models import Reservation
 from enarocanje.service.models import Service
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
 from enarocanje.tasks.mytasks import *
-from enarocanje.workinghours.models import WorkingHours
+from enarocanje.workinghours.models import WorkingHours, EmployeeWorkingHours
 from forms import ReservationForm, NonRegisteredUserForm, ReservationsForm
 from rcalendar import getMinMaxTime
 
@@ -73,13 +73,16 @@ def reservation(request, id, employee_id):
     service = get_object_or_404(Service, id=id)
     #Klemen: dobi zaposlenega za to storitev, ce je bil dolocen
     if employee_id > 0:
-        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id, service=service)
+        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id)
     else:
         service_provider_employee_obj = None
 
     if not service.is_active():
         raise Http404
-    minTime, maxTime = getMinMaxTime(service.service_provider)
+    if service_provider_employee_obj:
+        minTime, maxTime = getMinMaxTime(service.service_provider)
+    else:
+        minTime, maxTime = getMinMaxTimeEmployee(service.service_provider)
 
     if request.method != 'POST':
         # ce je zaposleni dolocen, ga daj kot initial
@@ -101,7 +104,11 @@ def reservation(request, id, employee_id):
     except:
         raise Http404
 
-    workingHours = WorkingHours.objects.filter(service_provider_id=service.service_provider_id)
+    if service_provider_employee_obj:
+        workingHours = WorkingHours.objects.filter(service_provider_id=service.service_provider_id)
+    else:
+        workingHours = EmployeeWorkingHours.objects.filter(service=service, service_provider_employee=service_provider_employee_obj)
+
 
 
 

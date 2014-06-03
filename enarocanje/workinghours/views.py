@@ -1,4 +1,5 @@
 import datetime
+import pdb
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -6,9 +7,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
 from enarocanje.accountext.decorators import for_service_providers
-from forms import WorkingHoursForm, WorkingHoursFormSet, AbsenceForm
-from models import WorkingHours, Absence, ServiceProviderEmployee
-
+from enarocanje.service.models import Service
+from forms import WorkingHoursForm, WorkingHoursFormSet, AbsenceForm, EmployeeWorkingHoursForm
+from models import WorkingHours, Absence, ServiceProviderEmployee, EmployeeWorkingHours
+from django.utils.translation import ugettext_lazy as _
 # Working hours
 
 @for_service_providers
@@ -80,67 +82,60 @@ def manage(request):
 def employee_workinghours(request, employee_id):
     employee = get_object_or_404(ServiceProviderEmployee, id=employee_id)
     #workinghours = get_object_or_404(WorkingHours, service_provider=request.user.service_provider, service_provider_employee=employee)
-    workinghours = WorkingHours.objects.filter(service_provider_employee=employee.id)
+    workinghours = EmployeeWorkingHours.objects.filter(service_provider_employee=employee)
     return render_to_response('workinghours/employee_workinghours.html', locals(), context_instance=RequestContext(request))
 
 @for_service_providers
-def employee_add_workinghours(request,employee_id):
-    employee=get_object_or_404(ServiceProviderEmployee,id=employee_id)
+def employee_add_workinghours(request, employee_id):
+    employee= get_object_or_404(ServiceProviderEmployee, id=employee_id)
     if request.method == 'POST':
 
-        form = WorkingHoursForm(request.POST, provider=request.user.service_provider,) #employee=employee
+        form = EmployeeWorkingHoursForm(request.POST, employee=employee) #employee=employee
         form_valid = form.is_valid()
-        formset = WorkingHoursFormSet(request.POST)
-        # formset forms need to know working hours for validation
-        for fs_form in formset:
-            fs_form.wh_time_from = form.cleaned_data.get('time_from')
-            fs_form.wh_time_to = form.cleaned_data.get('time_to')
-        formset_valid = formset.is_valid()
-        # even if form fails validaton, formset should be still validated
-        formset_valid = formset.is_valid()
-        if form_valid and formset_valid:
+
+        if form_valid:
             service = form.save(commit=False)
             service.service_provider = request.user.service_provider
+            service.service = form.cleaned_data['service']
             # Save
             service.service_provider_employee = employee
             service.save()
-            formset.instance = service
-            formset.save()
-            return HttpResponseRedirect(reverse(myworkinghours))
+
+
+            return HttpResponseRedirect(reverse(employee_workinghours))
     else:
         initial = {}
-        wh = WorkingHours.objects.filter(service_provider_employee=employee.id)
+        wh = EmployeeWorkingHours.objects.filter(service_provider_employee=employee)
         if wh.__len__()==0:
             initial['week_days'] = '1,2,3,4,5'
-        form = WorkingHoursForm(initial=initial, provider=request.user.service_provider) #employee=employee
-        formset = WorkingHoursFormSet()
+        form = EmployeeWorkingHoursForm(initial=initial, employee=employee) #employee=employee
+
     return render_to_response('workinghours/employee_add_workinghours.html', locals(), context_instance=RequestContext(request))
 
 @for_service_providers
-def employee_edit_workinghours(request, id, employee_id):
-    employee = get_object_or_404(ServiceProviderEmployee,id=employee_id)
-    workinghours = get_object_or_404(WorkingHours, service_provider=request.user.service_provider, id=id)
+def employee_edit_workinghours(request, id):
+    workinghours = get_object_or_404(EmployeeWorkingHours, service_provider=request.user.service_provider, id=id)
+    employee = ServiceProviderEmployee.objects.get(pk=workinghours.service_provider_employee_id)
     if request.method == 'POST':
-        form = WorkingHoursForm(request.POST, instance=workinghours, provider=request.user.service_provider, employee=employee)
+        form = EmployeeWorkingHoursForm(request.POST, instance=workinghours, employee=employee)
         form_valid = form.is_valid()
-        formset = WorkingHoursFormSet(request.POST, instance=workinghours)
-        # formset forms need to know working hours for validation
-        for fs_form in formset:
-            fs_form.wh_time_from = form.cleaned_data.get('time_from')
-            fs_form.wh_time_to = form.cleaned_data.get('time_to')
-        formset_valid = formset.is_valid()
-        # even if form fails validaton, formset should be still validated
-        if form_valid and formset_valid:
-            form.save()
-            formset.save()
+
+        if form_valid:
+            service = form.save(commit=False)
+            service.service_provider = request.user.service_provider
+            service.service = form.cleaned_data['service']
+            # Save
+            service.service_provider_employee = employee
+            service.save()
+
+
             return HttpResponseRedirect(reverse(employee_workinghours))
     else:
-        form = WorkingHoursForm(instance=workinghours, provider=request.user.service_provider, employee=employee)
-        formset = WorkingHoursFormSet(instance=workinghours)
+        form = EmployeeWorkingHoursForm(instance=workinghours, employee=employee)
     return render_to_response('workinghours/employee_edit_workinghours.html', locals(), context_instance=RequestContext(request))
 
 @for_service_providers
-def employee_manage_workinghours(request,employee_id):
+def employee_manage_workinghours(request, employee_id):
     if request.method == 'POST':
         employee = get_object_or_404(ServiceProviderEmployee,id=employee_id)
         workinghours = get_object_or_404(WorkingHours, service_provider=request.user.service_provider, service_provider_employee=employee,id=request.POST.get('workinghours'))

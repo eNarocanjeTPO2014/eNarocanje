@@ -9,7 +9,7 @@ urlpatterns = patterns('enarocanje.workinghours.views',
     # 1.6.2014 RokA; add views for managing employee working hours
     url(r'^employeeworkinghours/(?P<employee_id>\d+)$', 'employee_workinghours', name='employeeworkinghours'),
 	url(r'^employeeworkinghours/add/(?P<employee_id>\d+)$', 'employee_add_workinghours', name='employeeaddworkinghours'),
-	url(r'^employeeworkinghours/edit/(?P<employee_id>\d+)$', 'employee_edit_workinghours', name='employeeeditworkinghours'),
+	url(r'^employeeworkinghours/edit/(?P<id>\d+)$', 'employee_edit_workinghours', name='employeeeditworkinghours'),
 	url(r'^employeeworkinghours/manage/(?P<employee_id>\d+)$', 'employee_manage_workinghours', name='employeemanageworkinghours'),
 
 	url(r'^myabsences/$', 'myabsences', name='myabsences'),

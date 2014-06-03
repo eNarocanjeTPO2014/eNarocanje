@@ -50,7 +50,7 @@
 					</td>
 					<td data-title="{% trans 'Actions' %}">
 						<a href="{% url 'employeeeditworkinghours' wh.id %}" class="btn">{% trans "Edit" %}</a>
-						<form method="POST" action="{% url 'employeemanageworkinghours' %}" style="display: inline">
+						<form method="POST" action="{% url 'employeemanageworkinghours' wh.id %}" style="display: inline">
 							{% csrf_token %}
 							<input type="hidden" name="workinghours" value="{{ wh.id }}" />
 							<button class="btn btn-danger" type="submit" name="action" value="delete">{% trans "Delete" %}</button>

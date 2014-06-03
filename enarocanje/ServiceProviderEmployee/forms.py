@@ -21,8 +21,8 @@ class ServiceProviderEmployeeForm(ModelForm):
     class Meta:
         model = ServiceProviderEmployee
         # all fields except service_provider and service (you can only create your own services)
-        exclude = ('picture_width', 'picture_height')
-        fields = ('picture', 'active_from','active_to','first_name','last_name','description','service')
+        exclude = ('picture_width', 'picture_height', 'service')
+        fields = ('picture', 'active_from','active_to','first_name','last_name','description')
 
     def __init__(self, *args, **kwargs):
         super(ServiceProviderEmployeeForm, self).__init__(*args, **kwargs)
