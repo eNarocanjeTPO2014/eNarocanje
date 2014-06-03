@@ -35,7 +35,7 @@ class WorkingHoursForm(ModelForm):
 
 	class Meta:
 		model = WorkingHours
-		exclude = ('service_provider',)
+		exclude = ('service_provider','service_provider_employee')
 
 	def __init__(self, *args, **kwargs):
 		self.provider = kwargs.pop('provider')
@@ -95,7 +95,7 @@ class AbsenceForm(ModelForm):
 
 	class Meta:
 		model = Absence
-		exclude = ('service_provider',)
+		exclude = ('service_provider','service_provider_employee')
 
 	def __init__(self, *args, **kwargs):
 		super(AbsenceForm, self).__init__(*args, **kwargs)
