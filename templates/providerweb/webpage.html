@@ -13,7 +13,7 @@
     <div id="podatki" style="width:100%; height:500px; margin-bottom:15px; overflow:hidden;">
 
         <div id="osnovno" style="float:left; width:33.3%; border:0px; height:100%; overflow:hidden;">
-            <div  style="width:250px; height:180px;"> <img src="{{ MEDIA_URL }}{{serviceProvider.logo}}" alt=""/> </div>
+            <div  style="width:250px; height:180px; overflow:hidden;"> <img src="{{ MEDIA_URL }}{{serviceProvider.logo}}" alt=""/> </div>
 
             <div id="osnovno-text" style="padding:25px">
                 <p> <b> {{ serviceProvider.name }} </b> </p>
@@ -62,7 +62,7 @@
             </table>
         </div>
 
-        <div id="slika" style="float:left; width:33.3%; border:0px; height:100%; padding-top:170px; overflow:hidden;">
+        <div id="slika" style="float:left; width:33.3%; border:0px; height:290px; padding-top:170px; overflow:hidden;">
         <img src="{{ MEDIA_URL }}{{slika.image}}" alt="" width="500"/>
         </div>
     </div>

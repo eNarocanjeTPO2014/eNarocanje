@@ -22,6 +22,9 @@
 	<li class="active">
 		<a href="{% url 'mycustomers' %}">{% trans 'Customers' %}</a>
 	</li>
+    <li>
+     	<a href="{% url 'mynotifications' %}">{% trans 'Customer notifications' %}</a>
+     </li>
 </ul>
 
 	<div class="row-fluid">
@@ -109,6 +112,8 @@
 	</div>
     <div class="form-actions">
                     <a class="btn btn-primary" href="{% url 'addcustomer' %}">{% trans "Add customer" %}</a>
+                    <a class="btn btn-primary" href="{% url 'exportCSV' %}">{% trans "Export customers to CSV" %}</a>
+
          </div>
 {% endblock %}
 

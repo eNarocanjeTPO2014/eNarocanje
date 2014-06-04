@@ -18,13 +18,30 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('active_from', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('active_to', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('picture', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
+            ('picture_width', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('picture_height', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
         ))
         db.send_create_signal(u'ServiceProviderEmployee', ['ServiceProviderEmployee'])
+
+        # Adding model 'ServiceProviderEmployeeImage'
+        db.create_table(u'ServiceProviderEmployee_serviceprovideremployeeimage', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
+            ('image_width', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('image_height', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('delete_image', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('service_provider', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accountext.ServiceProvider'])),
+        ))
+        db.send_create_signal(u'ServiceProviderEmployee', ['ServiceProviderEmployeeImage'])
 
 
     def backwards(self, orm):
         # Deleting model 'ServiceProviderEmployee'
         db.delete_table(u'ServiceProviderEmployee_serviceprovideremployee')
+
+        # Deleting model 'ServiceProviderEmployeeImage'
+        db.delete_table(u'ServiceProviderEmployee_serviceprovideremployeeimage')
 
 
     models = {
@@ -36,8 +53,20 @@ class Migration(SchemaMigration):
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'picture': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'picture_height': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'picture_width': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
             'service': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'employees'", 'to': u"orm['service.Service']"}),
             'service_provider': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'employees'", 'to': u"orm['accountext.ServiceProvider']"})
+        },
+        u'ServiceProviderEmployee.serviceprovideremployeeimage': {
+            'Meta': {'object_name': 'ServiceProviderEmployeeImage'},
+            'delete_image': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
+            'image_height': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'image_width': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'service_provider': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accountext.ServiceProvider']"})
         },
         u'accountext.category': {
             'Meta': {'object_name': 'Category'},
@@ -58,10 +87,10 @@ class Migration(SchemaMigration):
             'logo_height': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
             'logo_width': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'reservation_confirmation_needed': ('django.db.models.fields.BooleanField', [], {}),
+            'reservation_confirmation_needed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'street': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'subscription_end_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 5, 13, 0, 0)'}),
-            'subscription_mail_sent': ('django.db.models.fields.BooleanField', [], {}),
+            'subscription_end_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 6, 4, 0, 0)'}),
+            'subscription_mail_sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'timezone': ('django.db.models.fields.CharField', [], {'default': "'UTC'", 'max_length': '30'}),
             'web': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'zipcode': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'})

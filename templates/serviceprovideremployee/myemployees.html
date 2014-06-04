@@ -77,6 +77,7 @@
                                     </td>
                                     <td data-title="{% trans 'Actions' %}">
                                         <a class="btn" href="{% url 'editemployee' employee.id %}">{% trans "Edit" %}</a>
+                                        <a href="{% url 'employeeworkinghours' employee.id %}" class="btn">{% trans "Edit working hours" %}</a>
                                     </td>
                                 </tr>
                             {% endfor %}

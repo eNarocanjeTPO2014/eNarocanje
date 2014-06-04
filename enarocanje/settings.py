@@ -8,9 +8,9 @@ SOCIAL_LOGIN = True
 
 ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
-#BASE_URL = 'http://krn.fri.uni-lj.si'
+BASE_URL = 'http://krn.fri.uni-lj.si'
 #spremeni, ko das na streznik
-BASE_URL = "http://localhost:8000"
+#BASE_URL = "http://localhost:8000"
 
 ADMINS = ()
 
@@ -151,7 +151,10 @@ INSTALLED_APPS = (
 	'enarocanje.coupon',
 	'enarocanje.ServiceProviderEmployee',
     'enarocanje.customers',
-    'post_office'
+    'enarocanje.mailservice',
+    'enarocanje.tasks',
+    'djcelery',
+    'django_twilio'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -194,7 +197,7 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'enarocanje.accountext.forms.SignupForm'
 ACCOUNT_USER_DISPLAY = lambda user: user.get_full_name()
 ACCOUNT_USERNAME_REQUIRED = False
 SOCIALACCOUNT_AUTO_SIGNUP = False
-EMAIL_BACKEND = 'post_office.EmailBackend'
+
 
 # Google API. todo enter your info.
 GOOGLE_CLIENT_ID = '271478323170-3pcqd81e7ajcnktpomoghlarko0fv0dv.apps.googleusercontent.com'
@@ -202,6 +205,13 @@ GOOGLE_CLIENT_SECRET = 'T1hZPtSjEvC-zj1v8vdK9wJi'
 GOOGLE_API_KEY = ''
 
 DEFAULT_FROM_EMAIL = 'info@eorderservice.com'
+
+#email relay gmail-smtp
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'tpo22fri2@gmail.com'
+EMAIL_HOST_PASSWORD = 'fritpo22'
+EMAIL_PORT = 587
 
 try:
 	from local_settings import *
@@ -213,3 +223,12 @@ if SOCIAL_LOGIN:
 		'allauth.socialaccount.providers.google',
 		'allauth.socialaccount.providers.facebook',
 	)
+
+
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+import djcelery
+djcelery.setup_loader()
+
+CELERY_IMPORTS = ('enarocanje.tasks.mytasks')
+CELERY_TIMEZONE = 'Europe/Paris'

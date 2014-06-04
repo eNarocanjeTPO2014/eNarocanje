@@ -17,7 +17,11 @@
 
 	<div class="row">
 		<div class="span12">
-			<h1><a style="color: #000000" href="{% url 'browseservices' %}?provider={{ service.service_provider.id }}">{{ service.service_provider.name }}</a> - <a style="color: #000000" href="{% url 'service' service.id %}">{{ service.name }}</a></h1>
+        {% if service_provider_employee_obj%}
+			<h1><a style="color: #000000" href="{% url 'browseservices' %}?provider={{ service.service_provider.id }}">{{ service.service_provider.name }}</a> - <a style="color: #000000" href="{% url 'service' service.id service_provider_employee_obj.id %}">{{ service.name }}</a></h1>
+        {% else %}
+            <h1><a style="color: #000000" href="{% url 'browseservices' %}?provider={{ service.service_provider.id }}">{{ service.service_provider.name }}</a> - <a style="color: #000000" href="{% url 'service2' service.id %}">{{ service.name }}</a></h1>
+        {% endif %}
 			{% if service.description %}
 				<p>{{ service.description }}</p>
 			{% endif %}
@@ -32,14 +36,20 @@
 					{% endif %}
 				</p>
 			{% endif %}
-            {% if service_provider_employee.first_name %}
+            {% if service_provider_employee_obj%}
 		    	<p>
-		    		<b>{% trans "Employee" %}:</b> {{ service_provider_employee.first_name }}<br/>
+		    		<b>{% trans "Employee" %}:</b> {{ service_provider_employee_obj.first_name }} {{ service_provider_employee_obj.last_name }}<br/>
 				</p>
+            {% else %}
+
 			{% endif %}
 			<ul class="nav nav-tabs">
 				<li class="{% block service_nav_reservation %}{% endblock %}">
-					<a href="{% url 'reservation' service.id %}">{% trans 'Reservation' %}</a>
+                {% if service_provider_employee_obj%}
+					<a href="{% url 'reservation' service.id service_provider_employee_obj.id %}">{% trans 'Reservation' %}</a>
+                {% else %}
+                    <a href="{% url 'reservation2' service.id %}">{% trans 'Reservation' %}</a>
+                {% endif %}
 				</li>
 				<li class="{% block service_nav_comments %}{% endblock %}">
 					<a href="{% url 'servicecomments' service.id %}">{% trans 'Comments' %}</a>

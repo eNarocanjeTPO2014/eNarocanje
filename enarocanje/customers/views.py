@@ -13,6 +13,8 @@ from enarocanje.reservations.models import Reservation
 from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from forms import CustomerForm
+from django.utils.encoding import smart_str
+import csv
 
 # Choices for sorting customers
 SORT_CHOICES_CUSTOMERS = (
@@ -158,3 +160,74 @@ def manage(request):
             reservation.attended = False
             reservation.save()
     return HttpResponseRedirect(reverse(customer_reservations, kwargs={'id':request.POST.get('customer')}))
+
+# Export selected customers to CSV format
+@for_service_providers
+def exportCSV(request):
+    customer_ids = Reservation.objects.filter(service_provider=request.user.service_provider).exclude(customer__isnull=True).values_list('customer_id', flat=True).distinct();
+    # Find customers who have not reserved anything yet and were added by service provider
+    customers_nonr = Customer.objects.filter(service_provider=request.user.service_provider)
+    customers = Customer.objects.filter(pk__in=customer_ids)
+    # Merge two QuerySets together
+    customers = customers | customers_nonr
+    qc = request.GET.get('qc', '')
+    # Search by name
+    if qc:
+        customers = customers.filter(full_name__contains=qc)
+    customers = customers.order_by('last_name')
+
+    # Construct HTTP response
+    response = HttpResponse(content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8')) # for excel
+    writer.writerow([
+        smart_str(u"First_Name"),
+        smart_str(u"Last_Name"),
+        smart_str(u"Phone"),
+        smart_str(u"Email"),
+    ])
+    for customer in customers:
+        writer.writerow([
+            smart_str(customer.name),
+            smart_str(customer.last_name),
+            smart_str(customer.phone),
+            smart_str(customer.email),
+        ])
+    return response
+exportCSV.short_description = u"Export CSV"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

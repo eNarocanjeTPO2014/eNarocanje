@@ -1,0 +1,35 @@
+{% extends "account/providerbase.html" %}
+
+{% load url from future %}
+{% load bootstrap_toolkit %}
+{% load i18n %}
+
+{% block step_service %}active{% endblock %}
+
+{% block provider_content %}
+    <input type="hidden" name="providerStep" value="2" />
+    {{ form | as_bootstrap }}
+	<div class="form-actions">
+        <button class="btn btn-primary" type="submit" name="action" value="additionalservice">{% trans "Add additonal service" %}</button>
+	    <button class="btn btn-primary" type="submit" name="action" value="next2">{% trans "Next" %}</button>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+	(function(){
+		function dateFields(el) {
+			el.find('.date-field').parent().datetimepicker({pickTime: false, language: '{{ request.LANGUAGE_CODE }}'});
+			$(document).trigger('sizing');
+		}
+
+		$('.formset-form').formset({
+			'prefix': 'discounts',
+			'added': dateFields
+		});
+
+		dateFields($('body'));
+	})();
+{% endblock %}

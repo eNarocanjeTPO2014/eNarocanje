@@ -55,7 +55,7 @@ def myemployees(request):
 def add(request):
     if request.method == 'POST':
         # if method was post (form submission), fill form from post data
-        form = ServiceProviderEmployeeForm(request.POST)
+        form = ServiceProviderEmployeeForm(request.POST, request.FILES)
         form_valid = form.is_valid()
         if form_valid:
             # if form is valid, save it and redirect back to myemployees
@@ -76,7 +76,7 @@ def add(request):
 def edit(request, id):
     employee = get_object_or_404(ServiceProviderEmployee, service_provider=request.user.service_provider, id=id)
     if request.method == 'POST':
-        form = ServiceProviderEmployeeForm(request.POST, instance=employee)
+        form = ServiceProviderEmployeeForm(request.POST, request.FILES, instance=employee)
         form_valid = form.is_valid()
         if form_valid:
             form.save()

@@ -1,4 +1,5 @@
 import datetime
+import pdb
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -8,7 +9,8 @@ from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import BootstrapDateInput, BootstrapTimeInput
 from enarocanje.coupon.models import Coupon
 from enarocanje.reservations.models import Reservation
-from enarocanje.workinghours.models import WorkingHours, Absence
+from enarocanje.service.models import Service
+from enarocanje.workinghours.models import WorkingHours, Absence, EmployeeWorkingHours
 
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
 
@@ -28,7 +30,10 @@ class ReservationForm(forms.Form):
     time = forms.TimeField(widget=BootstrapTimeInput(), initial=getDefaultReservationTime, label=_('Time'))
     number = forms.CharField(required=False, label='')
     # 8.4.2014 RokA; add service provider employee
-   # service_provider_employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all())
+    service_provider_employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.none(), required=False)
+    def filter_employees(self, service):
+        self.service_provider_employee.choices = ServiceProviderEmployee.objects.filter(service=service)
+
     def clean_number(self):
         data = self.cleaned_data['number']
         coupons = Coupon.objects.filter(service=self.service.id)
@@ -112,7 +117,10 @@ class ReservationForm(forms.Form):
                 raise ValidationError(_('Sorry, the service isn\'t available at specified time.'))
 
         # Check reservations
-        reservations = Reservation.objects.filter(service_provider=service_provider, date=self.cleaned_data.get('date'))
+        service = self.service
+        employee = self.service_provider_employee
+
+        reservations = Reservation.objects.filter(service=service, service_provider_employee=employee, service_provider=service_provider, date=self.cleaned_data.get('date'))
         for res in reservations:
             resDt = datetime.datetime.combine(res.date, res.time)
             if is_overlapping(start, end, resDt, resDt + datetime.timedelta(minutes=res.service_duration)):
@@ -123,14 +131,20 @@ class ReservationForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         self.workingHours = kwargs.pop('workingHours')
         self.service = kwargs.pop('service')
-        #self.service_provider_employee = kwargs.pop('serviceprovideremployee')
+        self.service_provider_employee = kwargs.pop('serviceProviderEmployee')
         self.request = request
         super(ReservationForm, self).__init__(*args, **kwargs)
+        workinghours = EmployeeWorkingHours.objects.filter(service=self.service).values_list('service_provider_employee_id', flat=True)
+        self.fields['service_provider_employee'].queryset = ServiceProviderEmployee.objects.filter(pk__in=workinghours)
+
+
+
 
 class NonRegisteredUserForm(forms.Form):
     name = forms.CharField(max_length=60, label=_('Name'), required=True)
     phone = forms.CharField(max_length=100, label=_('Phone Number'), required=True)
     email = forms.CharField(max_length=30, label=_('Email address'), required=True)
+    service_notifications = forms.BooleanField(label=_('Allow sending new offers and notices'), required=False)
 
 class GCalSettings(forms.Form):
 
@@ -149,3 +163,12 @@ class GCalSettings(forms.Form):
             ],
             label=''
         )
+
+class ReservationsForm(forms.Form):
+    employee = forms.ModelChoiceField(queryset=ServiceProviderEmployee.objects.all(), required=False, label=_('Select Employee:'))
+    def __init__(self, *args, **kwargs):
+        sp = kwargs.pop('sp')
+        self.employee = kwargs.pop('employee')
+        super(ReservationsForm, self).__init__(*args, **kwargs)
+        if sp:
+            self.fields['employee'].queryset =  ServiceProviderEmployee.objects.filter(service_provider=sp)

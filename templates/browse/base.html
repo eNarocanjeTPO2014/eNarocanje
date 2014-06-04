@@ -19,6 +19,10 @@
 	<li class="{% block browse_nav_services %}{% endblock %}">
 		<a href="{% url 'browseservices' %}">{% trans 'Services' %}</a>
 	</li>
+    <!-- 16.4.2014 RokA; add tag for browseemployees-->
+    <li class="{% block browse_nav_employees %}{% endblock %}">
+		<a href="{% url 'browseemployees' %}">{% trans 'Employees' %}</a>
+	</li>
 </ul>
 
 {% block content_browse %}{% endblock %}

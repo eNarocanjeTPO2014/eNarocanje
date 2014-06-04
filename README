@@ -7,11 +7,15 @@ Dependencies:
 	- google-api-python-client
 	- pytz
 	- pyrfc3339
-	- django-post_office
-	pip install --upgrade django django-allauth django-bootstrap-toolkit South requests google-api-python-client pytz pyrfc3339 django-post_office
+	- djcelery
+	-
+	pip install --upgrade django django-allauth django-bootstrap-toolkit South requests google-api-python-client pytz pyrfc3339 django-celery
 
 	- local smtp server
 	apt-get install postfix
+
+    -local messaging server
+    apt-get install rabbitmq-server
 
 Debug:
 	- Create local_settings.py for custom settings (not required)
@@ -28,3 +32,40 @@ Schema migrations:
 3rd party login:
 	- Set SOCIAL_LOGIN = True in local_settings.py
 	- Add client ids and secrets at /admin/socialaccount/socialapp/
+	
+
+Migracije:
+1. python manage.py schemamigration ime_aplikacije --auto
+2. python manage.py migrate ime_aplikacije
+3. python manage.py syncdb --all (ni vedno potrebno)
+
+Navodila za prevode:
+ -  najprej napiši template in tisti text, ki bi ga rad prevedel, daj v {% trans "moj_tekst" %}
+ - Če delaš na Linux: poženi python manage.py makemessages -l sl  (če si na Win, kopiraj datoteke celega projekta nekam na krn server in tam preko putty-ja vpisuj te ukaze)
+ - nato odpri datoteko python.po in napiši strmsg-je oz. prevode za tiste, ki še niso prevedeni 
+ - NUJNO izbriši vrstico #, fuzzy  nad strid prevoda, če ne se ne bo upošteval
+ - ko zapišeš vse prevode, vpiši: python manage.py compilemessages
+ - obvezno restartaj server za spremembe (terminate process oz. na krn strežniku moraš resetirat apache (  sudo /etc/init.d/apache2 restart  )
+
+ 
+Navodila za Git:
+- Rep iz organizacije si forkas dol v svoj rep. Nato klices "git clone [URL tvojega forkanega repositorija]".
+- Knekaj naredis klices "git commit".
+- Če naredis nov file pred comitom das "git add [nov file]".
+- Če hočeš spremenit verzijo na svojem repu na GitHubu klices "git push origin master".
+- Ko koncas s zgodbo kliknes zeleni gub  "pull request"  na spletni strani svojega repa. S tem posljes svojo verzijo na rep organizacije. 
+  Gres na organizacijo pogledas spremembe popravsi konflikte in meargas.
+
+Navodila za django-celery:
+    -potrebna je inštalacija celery-a
+    -sudo pip install django-celery
+    -potrebna inštalacia rabbitmq
+    -sudo apt-get install rabbitmq-server (ubuntu userji)
+    -potrebna inštalacija django-twilio
+    sudo pip install django-twilio
+
+    -za delovanje reminderjev moramo zagnati celery worker-ja
+    python manage.py celery worker
+    python manage.py celery worker --loglevel=info (z logi izpisanimi v cmd-ju)
+    -za izbris vseh neuspelih oz. se ne poslanih taskov
+    python manage.py celery purge

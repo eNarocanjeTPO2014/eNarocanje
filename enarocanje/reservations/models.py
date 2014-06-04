@@ -30,7 +30,7 @@ class Reservation(models.Model):
     user_fullname = models.CharField(_('name'), max_length=60, null=True)
     user_phone = models.CharField(_('phone number'), max_length=100, null=True)
     user_email = models.CharField(_('email address'), max_length=100, null=True)
-
+    service_notifications = models.BooleanField(default=False)
     # Backup fields if the service is changed or deleted
     service_provider = models.ForeignKey(ServiceProvider, related_name='reservations')
     service_name = models.CharField(_('name'), max_length=100)
