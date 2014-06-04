@@ -291,7 +291,10 @@ def reservation(request, id, employee_id):
 #Prikaz koledarja
 @for_service_providers
 def myreservations(request):
-    res_confirm = request.user.service_provider.reservation_confirmation_needed #to pustimo
+    res_confirm = request.user.service_provider.reservation_confirmation_needed
+    provider_id= services = request.user.service_provider_id
+    zaposleni= ServiceProviderEmployee.objects.filter(service_provider_id=provider_id)
+    storitve= Service.objects.filter(service_provider_id=provider_id)
     return render_to_response('reservations/myreservations.html', locals(), context_instance=RequestContext(request))
 
 

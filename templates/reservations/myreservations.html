@@ -8,6 +8,14 @@
 
 {% block content %}
 
+<link rel='stylesheet' type='text/css' href='static/js/fullcalendar-2.0.0/fullcalendar.css' />
+
+<script type='text/javascript' src='static/js/fullcalendar-2.0.0/lib/jquery.min.js'></script>
+<script type='text/javascript' src='static/js/fullcalendar-2.0.0/lib/jquery-ui.custom.min.js'></script>
+<script type='text/javascript' src='static/js/fullcalendar-2.0.0/lib/moment.min.js'></script>
+<script type='text/javascript' src='static/js/fullcalendar-2.0.0/fullcalendar.js'></script>
+<script src="/static/js/koledar.js"></script>
+
 <h1>{% trans 'My Reservations' %}</h1>
 
 	<ul class="nav nav-tabs">
@@ -32,6 +40,38 @@
 		{% endif %}
     </ul>
 
+    <div id="filtri">
+
+        <label style="float: left;"> {% trans "Filter by emloyee" %} &nbsp </label>
+        <select id="select_employee" style="float: left;">
+           <option value="0"> {% trans "All employee" %} </option>
+            {% for zaposlen in zaposleni %}
+                <option value=" {{ zaposlen.id }}"> {{ zaposlen.first_name }} {{zaposlen.last_name}} </option>
+            {% endfor %}
+        </select>
+
+        <label style="float: left;"> &nbsp &nbsp &nbsp {% trans "Filter by service" %} &nbsp </label>
+        <select style="float: left" id="select_service">
+            <option value="0"> {% trans "All services" %} </option>
+            {% for storitev in storitve %}
+                <option value="{{ storitev.id }}"> {{ storitev.name }} </option>
+            {% endfor %}
+        </select>
+
+        <label style="float: left"> &nbsp &nbsp &nbsp {% trans "Show on calendar" %} &nbsp </label>
+        <select id="show_on_calendar_sel">
+            <option value="0"> {% trans "All" %} </option>
+            <option value="1"> {% trans "Customers" %} </option>
+            <option value="2"> {% trans "Employee" %} </option>
+            <option value="3"> {% trans "Services" %} </option>
+        </select>
+    </div>
+
+    <div id='calendar'></div>
+
 	<a href="{% url 'gcal' %}">{% trans "Google Calendar sync settings" %}</a>
+    <input type="hidden"  id="EventsUrl" value="{% url 'dogodki' %}" />
+    <input type="hidden"  id="providerId" value="{{ provider_id }}" />
+    <input type="hidden"  id="employeeTrasns" value="{% trans 'Employee' %}" />
 
 {% endblock %}

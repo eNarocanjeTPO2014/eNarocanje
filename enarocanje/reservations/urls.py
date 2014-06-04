@@ -15,4 +15,5 @@ urlpatterns = patterns('enarocanje.reservations',
 	url(r'^services/(?P<id>\d+)/reservation$', 'views.reservation2', name='reservation2'),
     url(r'^services/(?P<id>\d+)/(?P<employee_id>\d+)/reservation$', 'views.reservation', name='reservation'),
 	url(r'^calendar.json$', 'rcalendar.calendarjson', name='calendarjson'),
+	url(r'^dogodki.json$', 'reservationsCalendar.koledar_json', name='dogodki'),
 )
