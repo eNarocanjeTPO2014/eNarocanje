@@ -6,7 +6,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import CSIMultipleChoiceField, BootstrapDateInput, BootstrapTimeInput
-from models import WorkingHours, WorkingHoursBreak, Absence, DAYS_OF_WEEK, DAYS_OF_WEEK_DICT
+from enarocanje.service.models import Service
+from models import WorkingHours, WorkingHoursBreak, Absence, DAYS_OF_WEEK, DAYS_OF_WEEK_DICT, EmployeeWorkingHours
+
 
 class WorkingHoursForm(ModelForm):
 	time_from = forms.TimeField(widget=BootstrapTimeInput(), label=_('Time from'))
@@ -35,7 +37,7 @@ class WorkingHoursForm(ModelForm):
 
 	class Meta:
 		model = WorkingHours
-		exclude = ('service_provider',)
+		exclude = ('service_provider','service_provider_employee')
 
 	def __init__(self, *args, **kwargs):
 		self.provider = kwargs.pop('provider')
@@ -95,9 +97,50 @@ class AbsenceForm(ModelForm):
 
 	class Meta:
 		model = Absence
-		exclude = ('service_provider',)
+		exclude = ('service_provider','service_provider_employee')
 
 	def __init__(self, *args, **kwargs):
 		super(AbsenceForm, self).__init__(*args, **kwargs)
 		if self.initial.get('date_from') == self.initial.get('date_to'):
 			self.initial['date_to'] = None
+
+
+class EmployeeWorkingHoursForm(ModelForm):
+	time_from = forms.TimeField(widget=BootstrapTimeInput(), label=_('Time from'))
+	time_to = forms.TimeField(widget=BootstrapTimeInput(), label=_('Time to'))
+	week_days = CSIMultipleChoiceField(widget=CheckboxSelectMultiple(), choices=DAYS_OF_WEEK, label='')
+
+	service = forms.ModelChoiceField(queryset=Service.objects.none(), required=False)
+
+	def myServices(self):
+		return Service.objects.filter(service_provider=self.user.service_provider)
+
+	def clean_time_to(self):
+		data = self.cleaned_data['time_to']
+		if not self.cleaned_data.get('time_from'):
+			return data
+		if data <= self.cleaned_data['time_from']:
+			raise ValidationError(_('Working hours can\'t end before they start.'))
+		return data
+
+	def clean_week_days(self):
+		data = self.cleaned_data['week_days']
+		overlap = set()
+		for wh in EmployeeWorkingHours.objects.filter(service_provider_employee=self.employee):
+			if wh.id != self.instance.id:
+				for day in data.split(','):
+					if day in wh.week_days_list():
+						overlap.add(day)
+		if overlap:
+			raise ValidationError(_('Working hours are already defined for some of these days (%s).') % u', '.join(ugettext(DAYS_OF_WEEK_DICT[i]) for i in sorted(overlap)))
+		return data
+
+	class Meta:
+		model = EmployeeWorkingHours
+		exclude = ('service_provider','service_provider_employee')
+
+	def __init__(self, *args, **kwargs):
+		self.employee = kwargs.pop('employee')
+		super(EmployeeWorkingHoursForm, self).__init__(*args, **kwargs)
+		if self.instance:
+			self.fields['service'].queryset = Service.objects.filter(service_provider_id=self.employee.service_provider_id)

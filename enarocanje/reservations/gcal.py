@@ -96,7 +96,7 @@ def convert_to_gcal_event(reservation):
 	start = add_timezone(datetime.datetime.combine(reservation.date, reservation.time), reservation.service_provider.get_timezone())
 
 	return {
-		'summary': '%s (%s)' % (reservation.user_fullname, reservation.service_name),
+		'summary': '%s (%s)' % (QueryDict.user_fullname, reservation.service_name),
 		'location': reservation.service_provider.full_address(),
 		'start': {
 			'dateTime': start.isoformat('T'),

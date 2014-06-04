@@ -1,5 +1,6 @@
 import datetime
 import json
+import pdb
 import urllib
 
 from django.conf import settings
@@ -24,6 +25,7 @@ from enarocanje.accountext.models import ServiceProvider, ServiceProviderImage, 
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee, ServiceProviderEmployeeImage
 from enarocanje.reservations.models import Reservation
 from enarocanje.settings import DEFAULT_FROM_EMAIL
+from enarocanje.workinghours.models import EmployeeWorkingHours
 from forms import ServiceForm, FilterForm, DiscountFormSet, CommentForm
 from models import Service, Category, Discount, Comment, User
 
@@ -392,7 +394,9 @@ def construct_url_employees(provider, service, q, sor, page):
 
 # RokA: naredi filtriranje podobno kot za browse_services
 def browse_employees(request):
-    employees = ServiceProviderEmployee.objects.all()
+    workinghours = EmployeeWorkingHours.objects.all().values_list('service_provider_employee_id', flat=True)
+    employees = ServiceProviderEmployee.objects.filter(pk__in=workinghours)
+
 
     if hasattr(request.user, 'has_service_provider'):
         if request.user.has_service_provider():
@@ -422,7 +426,9 @@ def browse_employees(request):
     selected_service = None
     if service:
         selected_service = get_object_or_404(Service, id=service)
-        employees = employees.filter(service_id=service)
+        workinghours = EmployeeWorkingHours.objects.filter(service=selected_service).values_list('service_provider_employee_id', flat=True)
+        employees = ServiceProviderEmployee.objects.filter(pk__in=workinghours)
+
 
     if q:
         # Added support for other backends different from MySQL

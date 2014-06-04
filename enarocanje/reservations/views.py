@@ -30,7 +30,7 @@ from enarocanje.reservations.models import Reservation
 from enarocanje.service.models import Service
 from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
 from enarocanje.tasks.mytasks import *
-from enarocanje.workinghours.models import WorkingHours
+from enarocanje.workinghours.models import WorkingHours, EmployeeWorkingHours
 from forms import ReservationForm, NonRegisteredUserForm, ReservationsForm
 from rcalendar import getMinMaxTime
 
@@ -72,25 +72,42 @@ def reservation2(request, id):
 def reservation(request, id, employee_id):
     service = get_object_or_404(Service, id=id)
     #Klemen: dobi zaposlenega za to storitev, ce je bil dolocen
+
+
     if employee_id > 0:
-        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id, service=service)
+        service_provider_employee_obj = get_object_or_404(ServiceProviderEmployee, id=employee_id)
     else:
         service_provider_employee_obj = None
 
     if not service.is_active():
         raise Http404
-    minTime, maxTime = getMinMaxTime(service.service_provider)
+    if service_provider_employee_obj:
+        workingHoursEmployee = EmployeeWorkingHours.objects.get(service=service, service_provider_employee=service_provider_employee_obj)
+        minTime = workingHoursEmployee.time_from
+        maxTime = workingHoursEmployee.time_to
+    else:
+        minTime, maxTime = getMinMaxTime(service.service_provider)
+
+
+    if request.POST.get('action', None) == 'employeechanged':
+        workingHoursEmployee = EmployeeWorkingHours.objects.get(service=service, service_provider_employee_id=request.POST.get('service_provider_employee', None))
+        minTime = workingHoursEmployee.time_from
+        maxTime = workingHoursEmployee.time_to
+        form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee": request.POST.get('service_provider_employee', None),})
+        service_provider_employee_obj = ServiceProviderEmployee.objects.get(pk=request.POST.get('service_provider_employee', None))
+        data = {'service_provider_id': service.service_provider_id} # 'service_provider_employee_id': service_provider_employee_obj.id }
+        return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
+
 
     if request.method != 'POST':
         # ce je zaposleni dolocen, ga daj kot initial
         if service_provider_employee_obj:
-            form = ReservationForm(request, workingHours=None, service=None, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee":service_provider_employee_obj})
+            form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee":service_provider_employee_obj})
         else:
             #ce se ni bil izbran
-            form = ReservationForm(request, workingHours=None, service=None, serviceProviderEmployee=service_provider_employee_obj)
-        #napolni combobox z zaposlenimi
-        form.fields['service_provider_employee'].choices = [(e.id, e) for e in ServiceProviderEmployee.objects.filter(service=service)]
-        data = {'service_provider_id': service.service_provider_id, 'service_id': service.id,} # 'service_provider_employee_id': service_provider_employee_obj.id }
+            form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj)
+
+        data = {'service_provider_id': service.service_provider_id} # 'service_provider_employee_id': service_provider_employee_obj.id }
         return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
 
     # POST
@@ -101,7 +118,11 @@ def reservation(request, id, employee_id):
     except:
         raise Http404
 
-    workingHours = WorkingHours.objects.filter(service_provider_id=service.service_provider_id)
+    if service_provider_employee_obj:
+        workingHours = WorkingHours.objects.filter(service_provider_id=service.service_provider_id)
+    else:
+        workingHours = EmployeeWorkingHours.objects.filter(service=service, service_provider_employee=service_provider_employee_obj)
+
 
 
 
@@ -120,6 +141,7 @@ def reservation(request, id, employee_id):
             data['number'] = form.cleaned_data['number']
             service_provider_employee_obj = form.cleaned_data['service_provider_employee']
             # ce je bil izbran zaposleni, shrani njegov id in ga prenesi v naslednje step-e
+
             if service_provider_employee_obj:
                 data['service_provider_employee'] = form.cleaned_data['service_provider_employee'].id
 
