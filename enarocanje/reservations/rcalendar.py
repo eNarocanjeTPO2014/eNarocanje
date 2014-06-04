@@ -1,5 +1,6 @@
 import datetime
 import json
+import pdb
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -17,14 +18,17 @@ EVENT_PAUSE_COLOR = '#CCCCCC'
 EVENT_RESERVED_COLOR = '#FF8000'
 
 def calendarjson(request):
+
 	try:
 		provider = ServiceProvider.objects.get(id=request.GET.get('service_provider_id'))
+		employee_id =  request.GET.get('service_provider_employee_id')
+		service_id = request.GET.get('service')
 		start = datetime.datetime.fromtimestamp(int(request.GET.get('start')))
 		end = datetime.datetime.fromtimestamp(int(request.GET.get('end')))
 	except:
 		raise Http404
 
-	return HttpResponse(json.dumps(getEvents(provider, start, end)))
+	return HttpResponse(json.dumps(getEvents(service_id, employee_id,provider, start, end)))
 
 def encodeDatetime(dt):
 	if isinstance(dt, datetime.date):
@@ -44,17 +48,12 @@ def getMinMaxTime(provider):
 		return (None, None)
 	return (min(wh.time_from for wh in workinghours), max(wh.time_to for wh in workinghours))
 
-def getMinMaxTimeEmployee(provider):
-	workinghours = list(provider.working_hours.all())
-	if not workinghours:
-		return (None, None)
-	return (min(wh.time_from for wh in workinghours), max(wh.time_to for wh in workinghours))
 
-def getEvents(provider, start, end):
+def getEvents(service_id, employee_id,provider, start, end):
 	events = []
 
 	# Get reservation events
-	events.extend(getReservations(provider, start, end))
+	events.extend(getReservations(service_id, employee_id ,provider, start, end))
 
 	# Get working hours events
 	for date in daterange(start.date(), end.date()):
@@ -62,8 +61,9 @@ def getEvents(provider, start, end):
 
 	return events
 
-def getReservations(provider, start, end):
-	reservations = Reservation.objects.filter(service_provider=provider, date__gte=start, date__lte=end)
+def getReservations(service_id, employee_id , provider, start, end):
+	reservations = Reservation.objects.filter(service_id=service_id, service_provider_employee_id=employee_id, service_provider=provider, date__gte=start, date__lte=end)
+
 	events = []
 	for reservation in reservations:
 		dt = datetime.datetime.combine(reservation.date, reservation.time)

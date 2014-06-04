@@ -25,6 +25,7 @@
 			</div>
             <div class="span6">
 				{{ form.service_provider_employee|as_bootstrap }}
+                <input id="employeechanged" type="submit" style="display: none"  name="action" value="employeechanged">
 			</div>
 			<div class="span6">
 				{{ form.time|as_bootstrap }}
@@ -38,6 +39,7 @@
 		{{ form.number|as_bootstrap }}
 
 		<div class="form-actions">
+
 			<input type="submit" class="btn btn-primary" value="{% trans "Make a reservation" %}">
 		</div>
 	</form>
@@ -48,6 +50,11 @@
 {% block javascript %}
 	{{ block.super }}
 	{% if minTime and maxTime %}
+        $( "#id_service_provider_employee" ).change(function() {
+                $("#employeechanged").click()
+
+        });
+
 	(function() {
 		var date = new Date(), selectedEvent = null;
 		function updateDate(ndate) {
@@ -125,7 +132,7 @@
 		date.setHours(dateTime.getHours());
 		date.setMinutes(dateTime.getMinutes());
 		date.setSeconds(0);
-
+        employee_id = $('#id_service_provider_employee').val()
 		$('#calendar').fullCalendar({
 			header: {
 				left: 'prev,next today',
@@ -179,11 +186,12 @@
 			},
 
 			/* events data */
+
 			events: {
 				url: '{% url 'calendarjson' %}',
 				type: 'GET',
 				data: {
-					'service_provider_id': '{{ service.service_provider_id }}'
+					'service_provider_id': '{{ service.service_provider_id }}', 'service': '{{ service.id }}', 'service_provider_employee_id': employee_id,
 				}
 			}
 		});
