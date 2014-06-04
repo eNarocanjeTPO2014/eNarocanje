@@ -102,7 +102,7 @@ def employee_add_workinghours(request, employee_id):
             service.save()
 
 
-            return HttpResponseRedirect(reverse(employee_workinghours))
+            return HttpResponseRedirect(reverse(employee_workinghours, kwargs={'employee_id':employee.id}))
     else:
         initial = {}
         wh = EmployeeWorkingHours.objects.filter(service_provider_employee=employee)
@@ -129,19 +129,19 @@ def employee_edit_workinghours(request, id):
             service.save()
 
 
-            return HttpResponseRedirect(reverse(employee_workinghours))
+            return HttpResponseRedirect(reverse(employee_workinghours, kwargs={'employee_id':employee.id}))
     else:
         form = EmployeeWorkingHoursForm(instance=workinghours, employee=employee)
     return render_to_response('workinghours/employee_edit_workinghours.html', locals(), context_instance=RequestContext(request))
 
 @for_service_providers
 def employee_manage_workinghours(request, employee_id):
+    workinghours = get_object_or_404(EmployeeWorkingHours, service_provider=request.user.service_provider,id=request.POST.get('workinghours'))
+    employee = ServiceProviderEmployee.objects.get(pk=workinghours.service_provider_employee_id)
     if request.method == 'POST':
-        employee = get_object_or_404(ServiceProviderEmployee,id=employee_id)
-        workinghours = get_object_or_404(WorkingHours, service_provider=request.user.service_provider, service_provider_employee=employee,id=request.POST.get('workinghours'))
         if request.POST.get('action') == 'delete':
             workinghours.delete()
-    return HttpResponseRedirect(reverse(employee_workinghours))
+    return HttpResponseRedirect(reverse(employee_workinghours, kwargs={'employee_id':employee.id}))
 
 # Absences
 
