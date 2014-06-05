@@ -10,7 +10,7 @@ import pyrfc3339
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import F
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, QueryDict
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
@@ -96,7 +96,7 @@ def convert_to_gcal_event(reservation):
 	start = add_timezone(datetime.datetime.combine(reservation.date, reservation.time), reservation.service_provider.get_timezone())
 
 	return {
-		'summary': '%s (%s)' % (QueryDict.user_fullname, reservation.service_name),
+		'summary': '%s (%s)' % (reservation.user_fullname, reservation.service_name),
 		'location': reservation.service_provider.full_address(),
 		'start': {
 			'dateTime': start.isoformat('T'),

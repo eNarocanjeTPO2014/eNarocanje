@@ -30,7 +30,7 @@ class Service(models.Model):
 	active_until = models.DateField(_('active until'), null=True, blank=True)
 
 	def __unicode__(self):
-		return self.name
+		return unicode(self.name)
 
 	def duration_with_unit(self):
 		return u'%dmin' % self.duration

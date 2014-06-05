@@ -32,7 +32,8 @@ class ServiceProviderEmployee(models.Model):
     picture_height = models.PositiveIntegerField(null=True)
 
     def __unicode__(self):
-		return u"{0} {1}".format(self.first_name, self.last_name)
+		#return u"{0} {1}".format(self.first_name, self.last_name)
+        return unicode(self.first_name+" "+self.last_name)
 
     def is_active(self):
 		return self.active_from <= datetime.date.today() <= self.active_to

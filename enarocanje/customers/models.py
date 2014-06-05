@@ -23,4 +23,4 @@ class Customer(models.Model):
     service_provider = models.ForeignKey(ServiceProvider, null=True, default=None)
 
     def __unicode__(self):
-        return str(self.name) + " " + str(self.last_name) + " E-mail: " + str(self.email+ " Last Reserved: "+str(self.last_reservation)+"<br />")
+        return unicode(str(self.name) + " " + str(self.last_name))
