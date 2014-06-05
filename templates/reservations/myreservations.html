@@ -73,5 +73,8 @@
     <input type="hidden"  id="EventsUrl" value="{% url 'dogodki' %}" />
     <input type="hidden"  id="providerId" value="{{ provider_id }}" />
     <input type="hidden"  id="employeeTrasns" value="{% trans 'Employee' %}" />
+    <input type="hidden"  id="calendar_trans" value="{% trans 'today' %} {% trans 'month' %} {% trans 'weak' %} {% trans 'day' %}"/>
+    <input type="hidden"  id="day_trans" value="{% trans 'Sunday' %} {% trans 'Monday' %} {% trans 'Tuesday' %} {% trans 'Wednesday' %} {% trans 'Thursday' %} {% trans 'Friday' %} {% trans 'Saturday' %}"/>
+    <input type="hidden"  id="day_trans_s" value="{% trans 'Sun' %} {% trans 'Mon' %} {% trans 'Tue' %} {% trans 'Wed' %} {% trans 'Thu' %} {% trans 'Fri' %} {% trans 'Sat' %}"/>
 
 {% endblock %}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-04 22:32+0200\n"
+"POT-Creation-Date: 2014-06-05 15:30+0200\n"
 "PO-Revision-Date: 2014-01-31 20:34+0100\n"
 "Last-Translator: klemen šavli <klemen@itklinika.si>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -803,36 +803,43 @@ msgid "Absence can't end before it starts."
 msgstr "Odsotnost se ne more končati preden se začne."
 
 #: enarocanje/workinghours/models.py:9 templates/providerweb/webpage.html:35
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Monday"
 msgstr "ponedeljek"
 
 #: enarocanje/workinghours/models.py:10 templates/providerweb/webpage.html:39
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Tuesday"
 msgstr "torek"
 
 #: enarocanje/workinghours/models.py:11 templates/providerweb/webpage.html:43
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Wednesday"
 msgstr "sreda"
 
 #: enarocanje/workinghours/models.py:12 templates/providerweb/webpage.html:47
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Thursday"
 msgstr "četrtek"
 
 #: enarocanje/workinghours/models.py:13 templates/providerweb/webpage.html:51
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Friday"
 msgstr "petek"
 
 #: enarocanje/workinghours/models.py:14 templates/providerweb/webpage.html:55
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Saturday"
 msgstr "sobota"
 
 #: enarocanje/workinghours/models.py:15 templates/providerweb/webpage.html:59
+#: templates/reservations/myreservations.html:77
 #: templates/reservations/reservation.html:173
 msgid "Sunday"
 msgstr "nedelja"
@@ -1858,18 +1865,16 @@ msgid "Filter by emloyee"
 msgstr "Uredi po zaposlenem"
 
 #: templates/reservations/myreservations.html:47
-#, fuzzy
 msgid "All employee"
-msgstr "Dodaj zaposlenega"
+msgstr "Vsi zaposleni"
 
 #: templates/reservations/myreservations.html:53
 msgid "Filter by service"
 msgstr "Uredi po storitvi"
 
 #: templates/reservations/myreservations.html:55
-#, fuzzy
 msgid "All services"
-msgstr "Dodaj storitev"
+msgstr "Vse storitve"
 
 #: templates/reservations/myreservations.html:61
 msgid "Show on calendar"
@@ -1878,6 +1883,60 @@ msgstr "Prikaži"
 #: templates/reservations/myreservations.html:72
 msgid "Google Calendar sync settings"
 msgstr "Nastavitve sinhronizacije z Google koledarjem"
+
+#: templates/reservations/myreservations.html:76
+#: templates/reservations/reservation.html:166
+msgid "today"
+msgstr "danes"
+
+#: templates/reservations/myreservations.html:76
+#: templates/reservations/reservation.html:167
+msgid "month"
+msgstr "mesec"
+
+#: templates/reservations/myreservations.html:76
+msgid "weak"
+msgstr "teden"
+
+#: templates/reservations/myreservations.html:76
+#: templates/reservations/reservation.html:169
+msgid "day"
+msgstr "dan"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Sun"
+msgstr "ned"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Mon"
+msgstr "pon"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Tue"
+msgstr "tor"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Wed"
+msgstr "sre"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Thu"
+msgstr "čet"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Fri"
+msgstr "pet"
+
+#: templates/reservations/myreservations.html:78
+#: templates/reservations/reservation.html:174
+msgid "Sat"
+msgstr "sob"
 
 #: templates/reservations/reservation.html:38
 msgid "If you have a COUPON, then enter the coupon's number"
@@ -1891,21 +1950,9 @@ msgstr "Rezerviraj"
 msgid "Your reservation"
 msgstr "Vaša rezervacija"
 
-#: templates/reservations/reservation.html:166
-msgid "today"
-msgstr "danes"
-
-#: templates/reservations/reservation.html:167
-msgid "month"
-msgstr "mesec"
-
 #: templates/reservations/reservation.html:168
 msgid "week"
 msgstr "teden"
-
-#: templates/reservations/reservation.html:169
-msgid "day"
-msgstr "dan"
 
 #: templates/reservations/reservation.html:171
 msgid "January"
@@ -1999,34 +2046,6 @@ msgstr "nov"
 #: templates/reservations/reservation.html:172
 msgid "Dec"
 msgstr "dec"
-
-#: templates/reservations/reservation.html:174
-msgid "Sun"
-msgstr "ned"
-
-#: templates/reservations/reservation.html:174
-msgid "Mon"
-msgstr "pon"
-
-#: templates/reservations/reservation.html:174
-msgid "Tue"
-msgstr "tor"
-
-#: templates/reservations/reservation.html:174
-msgid "Wed"
-msgstr "sre"
-
-#: templates/reservations/reservation.html:174
-msgid "Thu"
-msgstr "čet"
-
-#: templates/reservations/reservation.html:174
-msgid "Fri"
-msgstr "pet"
-
-#: templates/reservations/reservation.html:174
-msgid "Sat"
-msgstr "sob"
 
 #: templates/reservations/reservation.html:175
 msgid "W"
