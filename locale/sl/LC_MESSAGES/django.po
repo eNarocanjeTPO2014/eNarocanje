@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-05 15:30+0200\n"
+"POT-Creation-Date: 2014-06-05 16:05+0200\n"
 "PO-Revision-Date: 2014-01-31 20:34+0100\n"
 "Last-Translator: klemen šavli <klemen@itklinika.si>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -596,6 +596,18 @@ msgstr "Zaprto na ta dan"
 #: enarocanje/reservations/reservationsCalendar.py:14
 msgid "Reserved"
 msgstr "Rezervirano"
+
+#: enarocanje/reservations/reservationsCalendar.py:105
+msgid "Customer:"
+msgstr "Stranka:"
+
+#: enarocanje/reservations/reservationsCalendar.py:106
+msgid "Employee:"
+msgstr "Zaposleni:"
+
+#: enarocanje/reservations/reservationsCalendar.py:107
+msgid "Service:"
+msgstr "Storitev:"
 
 #: enarocanje/reservations/views.py:40
 msgid "Order by service"

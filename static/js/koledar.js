@@ -53,8 +53,6 @@ function renderCalendar()
     dnevis= document.getElementById('day_trans_s').value
     dnevis= dnevis.split(" ")
 
-    alert(dnevi[0])
-
     $('#calendar').fullCalendar({
         header: {
             left: 'prev,next today',
@@ -93,5 +91,6 @@ function renderCalendar()
             type: 'GET',
             data: readParameters()
         }
+
     })
 }

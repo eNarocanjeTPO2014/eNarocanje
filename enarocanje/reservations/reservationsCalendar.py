@@ -102,9 +102,9 @@ def getReservations(provider, start, end, employee_id, selected_service, selecte
 		eventTitle=""
 		#Prikazi vse
 		if selected_data == 0:
-			eventTitle= "Customer: " + reservation.user.first_name + reservation.user.last_name +\
-						" | Employee: " + reservation.service_provider_employee.first_name + reservation.service_provider_employee.last_name +\
-						" | Service: " + reservation.service_name
+			eventTitle= _('Customer:') + reservation.user.first_name + reservation.user.last_name +\
+						" | " + _('Employee:') + reservation.service_provider_employee.first_name + reservation.service_provider_employee.last_name +\
+						" | " + _('Service:') + reservation.service_name
 		#Prikazi stranke
 		elif selected_data == 1:
 			eventTitle= reservation.user.first_name + reservation.user.last_name
