@@ -56,8 +56,8 @@ function renderCalendar()
     $('#calendar').fullCalendar({
         header: {
             left: 'prev,next today',
-            center: '',
-            right: 'agendaWeek,agendaDay'
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
         },
 
         /* sets the current view */
@@ -90,7 +90,15 @@ function renderCalendar()
             url: document.getElementById("EventsUrl").value,
             type: 'GET',
             data: readParameters()
+        },
+        eventRender: function (event, element) {
+            element.attr('href', 'javascript:void(0);');
+            element.attr('onclick', 'openModal("' + event.title + '","' + event.description + '","' + event.url + '");');
         }
 
+
     })
+}
+function openModal(title, info, url) {
+    alert(title);
 }
