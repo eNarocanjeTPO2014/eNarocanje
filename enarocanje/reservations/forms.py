@@ -4,7 +4,7 @@ import pdb
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
+from django.contrib import messages
 from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import BootstrapDateInput, BootstrapTimeInput
 from enarocanje.coupon.models import Coupon
@@ -87,6 +87,12 @@ class ReservationForm(forms.Form):
         return data
 
     def clean_time(self):
+        employee_id = 0
+        try:
+            employee_id = self.data['service_provider_employee']
+        except:
+            print "bubu"
+
         now = datetime.datetime.now()
         data = self.cleaned_data.get('time')
         if not data or not self.cleaned_data.get('date'):
@@ -105,28 +111,50 @@ class ReservationForm(forms.Form):
         service_provider = self.service.service_provider
 
         # Check working hours
-        wrk = WorkingHours.get_for_day(service_provider, start.weekday())
-        if start.time() < wrk.time_from:
-            raise ValidationError(_('Sorry, the service isn\'t available before ' + str(wrk.time_from)[:-3]))
-        elif end.time() > wrk.time_to:
-            raise ValidationError(_('Sorry, the service is closed from ' + str(wrk.time_to)[:-3]))
+        if employee_id != u'':
+
+            wrk = EmployeeWorkingHours.get_for_day(self.service.id,employee_id, start.weekday())
+            if wrk:
+                if start.time() < wrk.time_from:
+                    messages.warning(self.request,_('Sorry, the service isn\'t available at this time'))
+                    raise ValidationError("")
+                elif end.time() > wrk.time_to:
+                    messages.warning(self.request,_('Sorry, the service isn\'t available at this time'))
+                    raise ValidationError("")
 
         # Check pauses
+        wrk = WorkingHours.get_for_day(self.service.service_provider, start.weekday())
         for wrkBr in wrk.breaks.all():
             if is_overlapping(start.time(), end.time(), wrkBr.time_from, wrkBr.time_to):
                 raise ValidationError(_('Sorry, the service isn\'t available at specified time.'))
 
         # Check reservations
         service = self.service
-        employee = self.service_provider_employee
-
-        reservations = Reservation.objects.filter(service=service, service_provider_employee=employee, service_provider=service_provider, date=self.cleaned_data.get('date'))
+        if employee_id ==u'':
+            reservations = Reservation.objects.filter(service=service, service_provider=service_provider, date=self.cleaned_data.get('date'))
+        else:
+            reservations = Reservation.objects.filter(service=service, service_provider=service_provider,service_provider_employee_id=employee_id, date=self.cleaned_data.get('date'))
         for res in reservations:
             resDt = datetime.datetime.combine(res.date, res.time)
             if is_overlapping(start, end, resDt, resDt + datetime.timedelta(minutes=res.service_duration)):
-                raise ValidationError(_('Sorry, your reservation is overlapping with another reservation.'))
+                free_employees = check_if_there_is_free_employee(service, start, end, resDt)
+                str=''
+                for e in free_employees:
+                    str +=e.first_name+' '+e.last_name+', '
+                if free_employees:
+                    if free_employees.__len__()==1:
+                        messages.info(self.request, str +'is free at this time')
+                        raise ValidationError(_('Sorry, your reservation is overlapping with another reservation.'))
 
+                    else:
+                        messages.info(self.request, str +'are free at this time')
+                        raise ValidationError(_('Sorry, your reservation is overlapping with another reservation./n'))
+
+                else:
+                    raise ValidationError(_('Sorry, your reservation is overlapping with another reservation.'))
         return data
+
+
 
     def __init__(self, request, *args, **kwargs):
         self.workingHours = kwargs.pop('workingHours')
@@ -138,7 +166,29 @@ class ReservationForm(forms.Form):
         self.fields['service_provider_employee'].queryset = ServiceProviderEmployee.objects.filter(pk__in=workinghours)
 
 
+def check_if_there_is_free_employee(service, start, end, date):
+        service_employees = ServiceProviderEmployee.objects.filter(service=service)
+        free_employees = []
+        if service_employees <=1:
+            return None
+        else:
+            for employee in service_employees:
+                employee_reservations = Reservation.objects.filter(service_provider_employee=service_employees, date=date)
+                if not employee_reservations:
+                    free_employees.append(employee)
+                else:
+                    its_free = True
+                    for reservation in employee_reservations:
+                        if is_overlapping(start, end, date, date + datetime.timedelta(minutes=reservation.service_duration)):
+                            its_free = False
+                            break
+                    if its_free:
+                        free_employees.append(employee)
 
+        if not free_employees:
+            return None
+        else:
+            return free_employees
 
 class NonRegisteredUserForm(forms.Form):
     name = forms.CharField(max_length=60, label=_('Name'), required=True)

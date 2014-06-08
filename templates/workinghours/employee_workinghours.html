@@ -29,7 +29,7 @@
 					{% trans 'Time' %}
 				</th>
 				<th>
-					{% trans 'Breaks' %}
+					{% trans 'Service' %}
 				</th>
 				<th>
 					{% trans 'Actions' %}
@@ -41,13 +41,7 @@
 				<tr>
 					<td data-title="{% trans 'Week days' %}">{{ wh.week_days_long }}</td>
 					<td data-title="{% trans 'Time' %}">{{ wh.time_from|time:"H:i" }} - {{ wh.time_to|time:"H:i" }}</td>
-					<td data-title="{% trans 'Breaks' %}">
-						{% for break in wh.breaks.all %}
-							{{ break.time_from|time:"H:i" }} - {{ break.time_to|time:"H:i" }}{% if not forloop.last %}, {% endif %}
-						{% empty %}
-							&nbsp;
-						{% endfor %}
-					</td>
+					<td data-title="{% trans 'Service' %}">{{ wh.service }}</td>
 					<td data-title="{% trans 'Actions' %}">
 						<a href="{% url 'employeeeditworkinghours' wh.id %}" class="btn">{% trans "Edit" %}</a>
 						<form method="POST" action="{% url 'employeemanageworkinghours' wh.id %}" style="display: inline">

@@ -1,8 +1,10 @@
+import pdb
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CheckboxSelectMultiple
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _, ugettext
+from enarocanje.accountext.models import ServiceProvider
 
 from enarocanje.common.timeutils import is_overlapping
 from enarocanje.common.widgets import CSIMultipleChoiceField, BootstrapDateInput, BootstrapTimeInput
@@ -112,19 +114,35 @@ class EmployeeWorkingHoursForm(ModelForm):
 
 	service = forms.ModelChoiceField(queryset=Service.objects.none(), required=False)
 
-	def myServices(self):
-		return Service.objects.filter(service_provider=self.user.service_provider)
+
+
 
 	def clean_time_to(self):
 		data = self.cleaned_data['time_to']
+		service_provider_workighours = WorkingHours.objects.filter(service_provider=self.employee.service_provider)
 		if not self.cleaned_data.get('time_from'):
 			return data
 		if data <= self.cleaned_data['time_from']:
 			raise ValidationError(_('Working hours can\'t end before they start.'))
+		if service_provider_workighours.__len__()==1:
+			workinghour = service_provider_workighours[0]
+			if workinghour.time_to < data:
+				raise ValidationError(_('Service provider is closed at this time.'))
+		return data
+
+	def clean_time_from(self):
+		data = self.cleaned_data['time_from']
+
+		service_provider_workighours = WorkingHours.objects.filter(service_provider=self.employee.service_provider)
+		if service_provider_workighours.__len__()==1:
+			workinghour = service_provider_workighours[0]
+			if workinghour.time_from > data:
+				raise ValidationError(_('Service provider is not opened at this time.'))
 		return data
 
 	def clean_week_days(self):
 		data = self.cleaned_data['week_days']
+
 		overlap = set()
 		for wh in EmployeeWorkingHours.objects.filter(service_provider_employee=self.employee):
 			if wh.id != self.instance.id:
@@ -133,6 +151,7 @@ class EmployeeWorkingHoursForm(ModelForm):
 						overlap.add(day)
 		if overlap:
 			raise ValidationError(_('Working hours are already defined for some of these days (%s).') % u', '.join(ugettext(DAYS_OF_WEEK_DICT[i]) for i in sorted(overlap)))
+
 		return data
 
 	class Meta:

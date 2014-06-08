@@ -138,6 +138,10 @@ def providersignup(request):
                 return render_to_response('account/singupprovider.html', locals(), context_instance=RequestContext(request))
         elif providerStep == '2':
             form = ServiceForm(request.POST)
+            if request.POST.get('name', None) == u'' and request.POST.get('duration', None) == u'':
+                form = ServiceProviderEmployeeForm()
+                messages.warning(request, _('You did not add any service!'))
+                return render_to_response('account/addemployee.html', locals(), context_instance=RequestContext(request))
             if form.is_valid():
                 new_service = Service.objects.create(service_provider_id=request.user.service_provider_id, duration=request.POST.get('duration', None))
 
@@ -160,34 +164,35 @@ def providersignup(request):
                 messages.success(request, _('Service '+new_service.name+' successfully added'))
                 new_service.save()
             else:
-                messages.warning(request, _('You did not add any service!'))
+                form = ServiceForm()
+                return render_to_response('account/addservice.html', locals(), context_instance=RequestContext(request))
 
             if request.POST.get('action', '') == 'additionalservice':
                 form = ServiceForm()
                 return render_to_response('account/addservice.html', locals(), context_instance=RequestContext(request))
             else:
                 form = ServiceProviderEmployeeForm()
-                form.fields['service'].choices = [(service.id, service.name) for service in Service.objects.filter(service_provider=request.user.service_provider)]
+
                 return render_to_response('account/addemployee.html', locals(), context_instance=RequestContext(request))
         elif providerStep == '3':
             form = ServiceProviderEmployeeForm(request.POST)
-            if form.is_valid():
-                new_employee = ServiceProviderEmployee.objects.create(first_name=request.POST.get('first_name', None), last_name=request.POST.get('last_name', None), service_id=request.POST.get('service', None), service_provider=request.user.service_provider )
+            if request.POST.get('description', None) == u'' and request.POST.get('first_name', None) == u'' and request.POST.get('last_name', None) == u'':
+                messages.warning(request, _('You did not add any employee!'))
+                return HttpResponseRedirect(reverse(browse_providers))
 
-                new_employee.description = request.POST.get('description', None)
-                new_employee.active_from = request.POST.get('active_from', None)
-                new_employee.active_to = request.POST.get('active_to', None)
-                new_employee.picture = request.POST.get('picture', None)
-                new_employee.save()
-                messages.success(request ,'Employee '+new_employee.first_name+' '+new_employee.last_name+' successfully added')
-                if request.POST.get('action', '') == 'additionalemployee':
-                    form = ServiceProviderEmployeeForm()
-                    form.fields['service'].choices = [(service.id, service.name) for service in Service.objects.filter(service_provider=request.user.service_provider)]
-                    return render_to_response('account/addemployee.html', locals(), context_instance=RequestContext(request))
-                else:
-                    return HttpResponseRedirect(reverse(browse_providers))
-            else:
+            new_employee = ServiceProviderEmployee.objects.create(first_name=request.POST.get('first_name', None), last_name=request.POST.get('last_name', None), service_provider=request.user.service_provider )
+            new_employee.description = request.POST.get('description', None)
+            new_employee.active_from = request.POST.get('active_from', None)
+            new_employee.active_to = request.POST.get('active_to', None)
+            new_employee.picture = request.POST.get('picture', None)
+            new_employee.save()
+            messages.success(request ,'Employee '+new_employee.first_name+' '+new_employee.last_name+' successfully added')
+            if request.POST.get('action', '') == 'additionalemployee':
+                form = ServiceProviderEmployeeForm()
                 return render_to_response('account/addemployee.html', locals(), context_instance=RequestContext(request))
+            else:
+                return HttpResponseRedirect(reverse(browse_providers))
+
     else:
         form = ServiceProviderForm()
 
