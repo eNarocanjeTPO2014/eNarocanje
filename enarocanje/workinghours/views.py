@@ -82,6 +82,7 @@ def manage(request):
 def employee_workinghours(request, employee_id):
     employee = get_object_or_404(ServiceProviderEmployee, id=employee_id)
     #workinghours = get_object_or_404(WorkingHours, service_provider=request.user.service_provider, service_provider_employee=employee)
+
     workinghours = EmployeeWorkingHours.objects.filter(service_provider_employee=employee)
     return render_to_response('workinghours/employee_workinghours.html', locals(), context_instance=RequestContext(request))
 

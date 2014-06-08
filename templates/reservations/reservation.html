@@ -25,7 +25,7 @@
 			</div>
             <div class="span6">
 				{{ form.service_provider_employee|as_bootstrap }}
-                <input id="employeechanged" type="submit" style="display: none"  name="action" value="employeechanged">
+
 			</div>
 			<div class="span6">
 				{{ form.time|as_bootstrap }}
@@ -50,11 +50,37 @@
 {% block javascript %}
 	{{ block.super }}
 	{% if minTime and maxTime %}
-        $( "#id_service_provider_employee" ).change(function() {
-                $("#employeechanged").click()
 
-        });
+    $('#id_service_provider_employee').change(function(){
 
+        refreshCalendar()
+    })
+
+    function refreshCalendar ()
+    {
+        $('#calendar').fullCalendar( 'removeEventSource', { url:'{% url 'calendarjson' %}'})
+
+            $('#calendar').fullCalendar( 'addEventSource', {
+                url: '{% url 'calendarjson' %}',
+                type: 'GET',
+                data: readParameters()
+            })
+    }
+
+    function readParameters ()
+
+    {
+
+         return {
+
+             employee_id: $('#id_service_provider_employee').val(),
+             service_provider_id:'{{ service_provider.id }}',
+             service_id: '{{ service.id }}',
+             start: '{{ minTime }}',
+             end: '{{ maxTime }}'
+
+         }
+    }
 	(function() {
 		var date = new Date(), selectedEvent = null;
 		function updateDate(ndate) {
@@ -132,7 +158,7 @@
 		date.setHours(dateTime.getHours());
 		date.setMinutes(dateTime.getMinutes());
 		date.setSeconds(0);
-        employee_id = $('#id_service_provider_employee').val()
+
 		$('#calendar').fullCalendar({
 			header: {
 				left: 'prev,next today',
@@ -190,9 +216,7 @@
 			events: {
 				url: '{% url 'calendarjson' %}',
 				type: 'GET',
-				data: {
-					'service_provider_id': '{{ service.service_provider_id }}', 'service': '{{ service.id }}', 'service_provider_employee_id': employee_id,
-				}
+				data: readParameters ()
 			}
 		});
 

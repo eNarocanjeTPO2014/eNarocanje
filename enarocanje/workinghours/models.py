@@ -87,9 +87,9 @@ class EmployeeWorkingHours(models.Model):
 
 
     @classmethod
-    def get_for_day(cls, service_provider, day_of_week):
+    def get_for_day(cls, service_id, employee_id, day_of_week):
         """Get working hours for a specific day_of_week (datetime.weekday())"""
-        for wh in cls.objects.filter(service_provider=service_provider):
+        for wh in cls.objects.filter(service_id=service_id, service_provider_employee_id=employee_id):
             if str(day_of_week + 1) in wh.week_days_list():
                 return wh
 

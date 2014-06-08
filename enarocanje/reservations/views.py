@@ -32,7 +32,7 @@ from enarocanje.ServiceProviderEmployee.models import ServiceProviderEmployee
 from enarocanje.tasks.mytasks import *
 from enarocanje.workinghours.models import WorkingHours, EmployeeWorkingHours
 from forms import ReservationForm, NonRegisteredUserForm, ReservationsForm
-from rcalendar import getMinMaxTime
+from rcalendar import getMinMaxTime, getEmployeeMinMaxTime
 
 
 # Choices for sorting reservations
@@ -81,22 +81,11 @@ def reservation(request, id, employee_id):
 
     if not service.is_active():
         raise Http404
-    if service_provider_employee_obj:
-        workingHoursEmployee = EmployeeWorkingHours.objects.get(service=service, service_provider_employee=service_provider_employee_obj)
-        minTime = workingHoursEmployee.time_from
-        maxTime = workingHoursEmployee.time_to
-    else:
-        minTime, maxTime = getMinMaxTime(service.service_provider)
 
 
-    if request.POST.get('action', None) == 'employeechanged':
-        workingHoursEmployee = EmployeeWorkingHours.objects.get(service=service, service_provider_employee_id=request.POST.get('service_provider_employee', None))
-        minTime = workingHoursEmployee.time_from
-        maxTime = workingHoursEmployee.time_to
-        form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee": request.POST.get('service_provider_employee', None),})
-        service_provider_employee_obj = ServiceProviderEmployee.objects.get(pk=request.POST.get('service_provider_employee', None))
-        data = {'service_provider_id': service.service_provider_id} # 'service_provider_employee_id': service_provider_employee_obj.id }
-        return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
+
+    minTime, maxTime = getMinMaxTime(service.service_provider)
+
 
 
     if request.method != 'POST':
@@ -106,7 +95,7 @@ def reservation(request, id, employee_id):
         else:
             #ce se ni bil izbran
             form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj)
-
+        service_provider = service.service_provider
         data = {'service_provider_id': service.service_provider_id} # 'service_provider_employee_id': service_provider_employee_obj.id }
         return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
 
@@ -154,6 +143,13 @@ def reservation(request, id, employee_id):
                 return render_to_response('reservations/confirmation.html', locals(), context_instance=RequestContext(request))
 
             return render_to_response('reservations/userinfo.html', locals(), context_instance=RequestContext(request))
+        if service_provider_employee_obj:
+            form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj, initial={"service_provider_employee":service_provider_employee_obj})
+        else:
+            #ce se ni bil izbran
+            form = ReservationForm(request, workingHours=None, service=service, serviceProviderEmployee=service_provider_employee_obj)
+        service_provider = service.service_provider
+        data = {'service_provider_id': service.service_provider_id} # 'service_provider_employee_id': service_provider_employee_obj.id }
 
         return render_to_response('reservations/reservation.html', locals(), context_instance=RequestContext(request))
 

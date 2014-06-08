@@ -18,6 +18,7 @@ class ServiceProviderEmployeeForm(ModelForm):
     active_from = forms.DateField(widget=BootstrapDateInput(), required=False, label=_('Active from'))
     active_to = forms.DateField(widget=BootstrapDateInput(), required=False, label=_('Active to'))
 
+
     class Meta:
         model = ServiceProviderEmployee
         # all fields except service_provider and service (you can only create your own services)

@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from enarocanje.accountext.models import ServiceProvider
 from enarocanje.reservations.models import Reservation
-from enarocanje.workinghours.models import Absence, WorkingHours
+from enarocanje.workinghours.models import Absence, WorkingHours, EmployeeWorkingHours
 
 EVENT_TITLE_CLOSED = _('Closed')
 EVENT_TITLE_CLOSED_WHOLE_DAY = _('Closed on this day')
@@ -20,11 +20,16 @@ EVENT_RESERVED_COLOR = '#FF8000'
 def calendarjson(request):
 
 	try:
+
 		provider = ServiceProvider.objects.get(id=request.GET.get('service_provider_id'))
-		employee_id =  request.GET.get('service_provider_employee_id')
-		service_id = request.GET.get('service')
+		employee_id =  request.GET.get('employee_id')
+		service_id = request.GET.get('service_id')
+
 		start = datetime.datetime.fromtimestamp(int(request.GET.get('start')))
 		end = datetime.datetime.fromtimestamp(int(request.GET.get('end')))
+
+		if employee_id == u'':
+			employee_id = None
 	except:
 		raise Http404
 
@@ -48,6 +53,12 @@ def getMinMaxTime(provider):
 		return (None, None)
 	return (min(wh.time_from for wh in workinghours), max(wh.time_to for wh in workinghours))
 
+def getEmployeeMinMaxTime(employee_id, service_id):
+    workinghours = list(EmployeeWorkingHours.objects.filter(service_provider_employee_id=employee_id,service_id=service_id))
+    if not workinghours:
+        return (None, None)
+    return (min(wh.time_from for wh in workinghours), max(wh.time_to for wh in workinghours))
+
 
 def getEvents(service_id, employee_id,provider, start, end):
 	events = []
@@ -56,13 +67,21 @@ def getEvents(service_id, employee_id,provider, start, end):
 	events.extend(getReservations(service_id, employee_id ,provider, start, end))
 
 	# Get working hours events
-	for date in daterange(start.date(), end.date()):
-		events.extend(getWorkingHours(provider, date))
+	if not employee_id:
+		for date in daterange(start.date(), end.date()):
+			events.extend(getWorkingHours(provider,service_id, date))
+	else:
+		for date in daterange(start.date(), end.date()):
+			events.extend(getEmployeeWorkingHours(provider,service_id,employee_id, date))
+
 
 	return events
 
-def getReservations(service_id, employee_id , provider, start, end):
-	reservations = Reservation.objects.filter(service_id=service_id, service_provider_employee_id=employee_id, service_provider=provider, date__gte=start, date__lte=end)
+def getReservations(service_id, employee_id, provider, start, end):
+	if employee_id:
+		reservations = Reservation.objects.filter(service_id=service_id, service_provider_employee_id=employee_id, service_provider=provider, date__gte=start, date__lte=end)
+	else:
+		reservations = Reservation.objects.filter(service_id=service_id, service_provider=provider, date__gte=start, date__lte=end)
 
 	events = []
 	for reservation in reservations:
@@ -76,8 +95,57 @@ def getReservations(service_id, employee_id , provider, start, end):
 
 	return events
 
-def getWorkingHours(provider, date):
+def getWorkingHours(provider,service_id, date):
 	workinghrs = WorkingHours.get_for_day(provider, date.weekday())
+
+	employees_workinghours_on_curr_service = EmployeeWorkingHours.objects.filter(service=service_id)
+	maxTime_from = employees_workinghours_on_curr_service[0].time_from
+	maxTime_to = employees_workinghours_on_curr_service[0].time_to
+	for employee_workinghours in employees_workinghours_on_curr_service:
+		if maxTime_from > employee_workinghours.time_from:
+			maxTime_from = employee_workinghours.time_from
+        if maxTime_to < employee_workinghours.time_to:
+            maxTime_to = employee_workinghours.time_to
+
+	events = []
+
+	# Check if provider is working on this date
+	if workinghrs is None or Absence.is_absent_on(provider, date):
+		return [{
+			'title': ugettext(EVENT_TITLE_CLOSED_WHOLE_DAY),
+			'start': encodeDatetime(date),
+			'end': encodeDatetime(date + datetime.timedelta(days=1)),
+			'color': EVENT_CLOSED_COLOR
+		}]
+
+	# Start
+	events.append({
+		'title': ugettext(EVENT_TITLE_CLOSED),
+		'start': encodeDatetime(date),
+		'end': encodeDatetime(datetime.datetime.combine(date, maxTime_from)),
+		'color': EVENT_PAUSE_COLOR
+	})
+
+	# End
+	events.append({
+		'title': ugettext(EVENT_TITLE_CLOSED),
+		'start': encodeDatetime(datetime.datetime.combine(date, maxTime_to)),
+		'end': encodeDatetime(date + datetime.timedelta(days=1)),
+		'color': EVENT_PAUSE_COLOR
+	})
+
+	for wrkbrk in workinghrs.breaks.all():
+		events.append({
+			'title': ugettext(EVENT_TITLE_CLOSED),
+			'start': encodeDatetime(datetime.datetime.combine(date, wrkbrk.time_from)),
+			'end': encodeDatetime(datetime.datetime.combine(date, wrkbrk.time_to)),
+			'color': EVENT_PAUSE_COLOR
+		})
+
+	return events
+
+def getEmployeeWorkingHours(provider,service_id,employee_id, date):
+	workinghrs = EmployeeWorkingHours.get_for_day(service_id,employee_id, date.weekday())
 	events = []
 
 	# Check if provider is working on this date
@@ -105,12 +173,6 @@ def getWorkingHours(provider, date):
 		'color': EVENT_PAUSE_COLOR
 	})
 
-	for wrkbrk in workinghrs.breaks.all():
-		events.append({
-			'title': ugettext(EVENT_TITLE_CLOSED),
-			'start': encodeDatetime(datetime.datetime.combine(date, wrkbrk.time_from)),
-			'end': encodeDatetime(datetime.datetime.combine(date, wrkbrk.time_to)),
-			'color': EVENT_PAUSE_COLOR
-		})
+
 
 	return events
